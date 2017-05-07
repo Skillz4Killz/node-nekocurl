@@ -1,6 +1,6 @@
 {
   "name": "nekoclient",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "A HTTP client that uses plug-in drivers to do HTTP requests. Default driver, if available, is snekfetch.",
   "repository": {
     "type": "git",

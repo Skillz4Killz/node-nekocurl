@@ -1,8 +1,8 @@
 /**
- * Charuru
+ * Nekoclient driver request
  * Copyright 2017 Charlotte Dunois, All Rights Reserved
  *
- * Website: https://charuru.moe
+ * Website: https://github.com/CharlotteDunois/node-nekoclient
 */
 
 const mimetypes = require('mime-types');

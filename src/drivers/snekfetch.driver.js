@@ -1,8 +1,8 @@
 /**
- * Charuru
+ * Nekoclient driver snekfetch
  * Copyright 2017 Charlotte Dunois, All Rights Reserved
  *
- * Website: https://charuru.moe
+ * Website: https://github.com/CharlotteDunois/node-nekoclient
 */
 
 const Snekfetch = require('snekfetch');

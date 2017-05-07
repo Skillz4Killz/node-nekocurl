@@ -1,8 +1,8 @@
 /**
- * Charuru
+ * Nekoclient
  * Copyright 2017 Charlotte Dunois, All Rights Reserved
  *
- * Website: https://charuru.moe
+ * Website: https://github.com/CharlotteDunois/node-nekoclient
 */
 
 const fs = require('fs');
@@ -11,7 +11,7 @@ if(packagejson.version.substr(-2) === '.0') {
     packagejson.version = packagejson.version.substr(0, (packagejson.version.length - 2));
 }
 
-class HTTPClient {
+class Nekoclient {
     constructor(url, options = { }) {
         this.url = url;
         this.method = (options.method || 'GET').toUpperCase();
@@ -21,7 +21,7 @@ class HTTPClient {
         this.autoString = (options.autoString !== undefined ? options.autoString === true : true);
         this.encoding = (options.encoding !== undefined ? options.encoding : undefined);
         this.json = (options.json === true) || false;
-        this.driver = options.driver || HTTPClient.defaultDriver;
+        this.driver = options.driver || Nekoclient.defaultDriver;
         
         if(options.headers) {
             this.setHeaders(options.headers);
@@ -71,7 +71,7 @@ class HTTPClient {
     
     async send(resolveWithFullResponse) {
         if(this.headers['user-agent'] === undefined) {
-            this.setHeader('User-Agent', 'Charuru v'+packagejson.version+'/HTTPClient-'+this.getDrivername());
+            this.setHeader('User-Agent', 'Charuru v'+packagejson.version+'/Nekoclient-'+this.getDrivername());
         }
         
         const request = this.getDriver()(Object.assign({}, this));
@@ -98,49 +98,49 @@ class HTTPClient {
     
     sendPassthrough() {
         if(this.headers['user-agent'] === undefined) {
-            this.setHeader('User-Agent', 'Charuru v'+packagejson.version+'/HTTPClient-'+this.getDrivername());
+            this.setHeader('User-Agent', 'Charuru v'+packagejson.version+'/Nekoclient-'+this.getDrivername());
         }
         
         return this.getDriver()(Object.assign({}, this));
     }
     
     getDriver() {
-        if(this.driver && HTTPClient.availableDrivers.has(this.driver) === true) {
-            return HTTPClient.availableDrivers.get(this.driver);
+        if(this.driver && Nekoclient.availableDrivers.has(this.driver) === true) {
+            return Nekoclient.availableDrivers.get(this.driver);
         }
         
-        return HTTPClient.availableDrivers.get(HTTPClient.defaultDriver);
+        return Nekoclient.availableDrivers.get(Nekoclient.defaultDriver);
     }
     
     getDrivername() {
-        if(this.driver && HTTPClient.availableDrivers.has(this.driver) === true) {
+        if(this.driver && Nekoclient.availableDrivers.has(this.driver) === true) {
             return this.driver;
         }
         
-        return HTTPClient.defaultDriver;
+        return Nekoclient.defaultDriver;
     }
 }
 
-HTTPClient.availableDrivers = new Map();
-HTTPClient.defaultDriver = '';
+Nekoclient.availableDrivers = new Map();
+Nekoclient.defaultDriver = '';
 
 const drivers = fs.readdirSync(__dirname+'/drivers/');
 for(let drivername of drivers) {
     if(drivername.endsWith('.driver.js')) {
         try {
-            HTTPClient.availableDrivers.set(drivername.substr(0, (drivername.length - 10)), require(__dirname+'/drivers/'+drivername));
+            Nekoclient.availableDrivers.set(drivername.substr(0, (drivername.length - 10)), require(__dirname+'/drivers/'+drivername));
         } catch(error) {
             console.error(error);
         }
     }
 }
 
-if(HTTPClient.availableDrivers.has('snekfetch') === true) {
-    HTTPClient.defaultDriver = 'snekfetch';
-} else if(HTTPClient.availableDrivers.size > 0) {
-    HTTPClient.defaultDriver = HTTPClient.availableDrivers.keys().next().value;
+if(Nekoclient.availableDrivers.has('snekfetch') === true) {
+    Nekoclient.defaultDriver = 'snekfetch';
+} else if(Nekoclient.availableDrivers.size > 0) {
+    Nekoclient.defaultDriver = Nekoclient.availableDrivers.keys().next().value;
 } else {
-    throw new Error('No HTTPClient drivers available.');
+    throw new Error('No Nekoclient drivers available.');
 }
 
-module.exports = HTTPClient;
+module.exports = Nekoclient;
