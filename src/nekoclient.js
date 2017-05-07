@@ -71,7 +71,7 @@ class Nekoclient {
     
     async send(resolveWithFullResponse) {
         if(this.headers['user-agent'] === undefined) {
-            this.setHeader('User-Agent', 'Charuru v'+packagejson.version+'/Nekoclient-'+this.getDrivername());
+            this.setHeader('User-Agent', 'Nekoclient v'+packagejson.version+' ('+this.getDrivername()+')');
         }
         
         const request = this.getDriver()(Object.assign({}, this));
