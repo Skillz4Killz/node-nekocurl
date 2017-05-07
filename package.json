@@ -4,7 +4,7 @@
   "description": "A HTTP client that uses plug-in drivers to do HTTP requests. Default driver, if available, is snekfetch.",
   "repository": {
     "type": "git",
-    "url": "https://github.com/CharlotteDunois"
+    "url": "https://github.com/CharlotteDunois/node-nekoclient"
   },
   "author": "Charlotte Dunois",
   "license": "MIT",
