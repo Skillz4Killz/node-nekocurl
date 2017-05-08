@@ -1,10 +1,10 @@
 {
-  "name": "nekoclient",
-  "version": "0.1.5",
+  "name": "nekocurl",
+  "version": "0.1.6",
   "description": "A HTTP client that uses plug-in drivers to do HTTP requests. Default driver, if available, is snekfetch.",
   "repository": {
     "type": "git",
-    "url": "https://github.com/CharlotteDunois/node-nekoclient"
+    "url": "https://github.com/CharlotteDunois/node-nekocurl"
   },
   "author": "Charlotte Dunois",
   "license": "MIT",

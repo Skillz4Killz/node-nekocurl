@@ -1,8 +1,8 @@
 /**
- * Nekoclient
+ * Nekocurl
  * Copyright 2017 Charlotte Dunois, All Rights Reserved
  *
- * Website: https://github.com/CharlotteDunois/node-nekoclient
+ * Website: https://github.com/CharlotteDunois/node-nekocurl
 */
 
 const fs = require('fs');
@@ -11,7 +11,7 @@ if(packagejson.version.substr(-2) === '.0') {
     packagejson.version = packagejson.version.substr(0, (packagejson.version.length - 2));
 }
 
-class Nekoclient {
+class Nekocurl {
     constructor(url, options = { }) {
         this.url = url;
         this.method = (options.method || 'GET').toUpperCase();
@@ -21,7 +21,7 @@ class Nekoclient {
         this.autoString = (options.autoString !== undefined ? options.autoString === true : true);
         this.encoding = (options.encoding !== undefined ? options.encoding : undefined);
         this.json = (options.json === true) || false;
-        this.driver = options.driver || Nekoclient.defaultDriver;
+        this.driver = options.driver || Nekocurl.defaultDriver;
         
         if(options.headers) {
             this.setHeaders(options.headers);
@@ -71,7 +71,7 @@ class Nekoclient {
     
     async send(resolveWithFullResponse) {
         if(this.headers['user-agent'] === undefined) {
-            this.setHeader('User-Agent', 'Nekoclient v'+packagejson.version+' ('+this.getDrivername()+')');
+            this.setHeader('User-Agent', 'Nekocurl v'+packagejson.version+' ('+this.getDrivername()+')');
         }
         
         const request = this.getDriver()(Object.assign({}, this));
@@ -98,49 +98,50 @@ class Nekoclient {
     
     sendPassthrough() {
         if(this.headers['user-agent'] === undefined) {
-            this.setHeader('User-Agent', 'Charuru v'+packagejson.version+'/Nekoclient-'+this.getDrivername());
+            this.setHeader('User-Agent', 'Nekocurl v'+packagejson.version+'-'+this.getDrivername()+' (https://github.com/CharlotteDunois/node-nekocurl)');
         }
         
         return this.getDriver()(Object.assign({}, this));
     }
     
     getDriver() {
-        if(this.driver && Nekoclient.availableDrivers.has(this.driver) === true) {
-            return Nekoclient.availableDrivers.get(this.driver);
+        if(this.driver && Nekocurl.availableDrivers.has(this.driver) === true) {
+            return Nekocurl.availableDrivers.get(this.driver);
         }
         
-        return Nekoclient.availableDrivers.get(Nekoclient.defaultDriver);
+        return Nekocurl.availableDrivers.get(Nekocurl.defaultDriver);
     }
     
     getDrivername() {
-        if(this.driver && Nekoclient.availableDrivers.has(this.driver) === true) {
+        if(this.driver && Nekocurl.availableDrivers.has(this.driver) === true) {
             return this.driver;
         }
         
-        return Nekoclient.defaultDriver;
+        return Nekocurl.defaultDriver;
     }
 }
 
-Nekoclient.availableDrivers = new Map();
-Nekoclient.defaultDriver = '';
+Nekocurl.availableDrivers = new Map();
+Nekocurl.defaultDriver = '';
+Nekocurl.version = packagejson.version;
 
 const drivers = fs.readdirSync(__dirname+'/drivers/');
 for(let drivername of drivers) {
     if(drivername.endsWith('.driver.js')) {
         try {
-            Nekoclient.availableDrivers.set(drivername.substr(0, (drivername.length - 10)), require(__dirname+'/drivers/'+drivername));
+            Nekocurl.availableDrivers.set(drivername.substr(0, (drivername.length - 10)), require(__dirname+'/drivers/'+drivername));
         } catch(error) {
             console.error(error);
         }
     }
 }
 
-if(Nekoclient.availableDrivers.has('snekfetch') === true) {
-    Nekoclient.defaultDriver = 'snekfetch';
-} else if(Nekoclient.availableDrivers.size > 0) {
-    Nekoclient.defaultDriver = Nekoclient.availableDrivers.keys().next().value;
+if(Nekocurl.availableDrivers.has('snekfetch') === true) {
+    Nekocurl.defaultDriver = 'snekfetch';
+} else if(Nekocurl.availableDrivers.size > 0) {
+    Nekocurl.defaultDriver = Nekocurl.availableDrivers.keys().next().value;
 } else {
-    throw new Error('No Nekoclient drivers available.');
+    throw new Error('No Nekocurl drivers available.');
 }
 
-module.exports = Nekoclient;
+module.exports = Nekocurl;

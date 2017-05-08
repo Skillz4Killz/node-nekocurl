@@ -1,15 +1,15 @@
-# Nekoclient
-A HTTP client that uses plug-in drivers to do HTTP requests. Default driver, if available, is snekfetch.
+# Nekocurl
+A HTTP client class that uses plug-in drivers to do HTTP requests. Default driver, if available, is snekfetch.
 
 # Installation
 ```
-npm install nekoclient
+npm install nekocurl
 ``` 
 
 # How to use
 ```js
-const Nekoclient = require('nekoclient');
-(new Nekoclient('https://github.com/someJSONendpoint.json', { method: 'GET', json: true })).send().then((json) => {
+const Nekocurl = require('nekocurl');
+(new Nekocurl('https://github.com/someJSONendpoint.json', { method: 'GET', json: true })).send().then((json) => {
     console.log(json);
 });
 ```

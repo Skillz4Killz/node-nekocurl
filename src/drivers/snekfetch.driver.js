@@ -1,8 +1,8 @@
 /**
- * Nekoclient driver snekfetch
+ * Nekocurl driver snekfetch
  * Copyright 2017 Charlotte Dunois, All Rights Reserved
  *
- * Website: https://github.com/CharlotteDunois/node-nekoclient
+ * Website: https://github.com/CharlotteDunois/node-nekocurl
 */
 
 const Snekfetch = require('snekfetch');

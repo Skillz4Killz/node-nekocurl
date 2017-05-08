@@ -1,8 +1,8 @@
 /**
- * Nekoclient driver request
+ * Nekocurl driver request
  * Copyright 2017 Charlotte Dunois, All Rights Reserved
  *
- * Website: https://github.com/CharlotteDunois/node-nekoclient
+ * Website: https://github.com/CharlotteDunois/node-nekocurl
 */
 
 const mimetypes = require('mime-types');
