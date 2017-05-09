@@ -36,7 +36,7 @@ const driverRequest = (options) => {
     }
     
     return new Promise((resolve, reject) => {
-        request({ uri: options.url, method: options.method, headers: options.headers, form: files, body: (options.data ? options.data : undefined), json: options.json, encoding: options.encoding, resolveWithFullResponse: true }, (err, res, body) => {
+        request({ uri: options.url, method: options.method, headers: options.headers, form: files, body: (options.data ? options.data : undefined), json: options.json, encoding: options.encoding }, (err, res, body) => {
             if(err) {
                 return reject(err);
             }

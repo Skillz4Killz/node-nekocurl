@@ -15,3 +15,6 @@ const Nekocurl = require('nekocurl');
     console.log(json);
 });
 ```
+
+# Documentation
+https://charlottedunois.github.io/node-nekocurl/
