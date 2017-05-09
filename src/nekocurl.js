@@ -131,7 +131,7 @@ for(let drivername of drivers) {
         try {
             Nekocurl.availableDrivers.set(drivername.substr(0, (drivername.length - 10)), require(__dirname+'/drivers/'+drivername));
         } catch(error) {
-            console.error(error);
+            
         }
     }
 }

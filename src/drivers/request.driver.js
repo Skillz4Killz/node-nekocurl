@@ -6,7 +6,7 @@
 */
 
 const mimetypes = require('mime-types');
-const request = require('request-promise');
+const request = require('request');
 
 const driverRequest = (options) => {
     let files = undefined;
@@ -35,7 +35,15 @@ const driverRequest = (options) => {
         
     }
     
-    return request({ uri: options.url, method: options.method, headers: options.headers, form: files, body: (options.data ? options.data : undefined), json: options.json, encoding: options.encoding, resolveWithFullResponse: true });
+    return new Promise((resolve, reject) => {
+        request({ uri: options.url, method: options.method, headers: options.headers, form: files, body: (options.data ? options.data : undefined), json: options.json, encoding: options.encoding, resolveWithFullResponse: true }, (err, res, body) => {
+            if(err) {
+                return reject(err);
+            }
+            
+            resolve(res);
+        });
+    });
 };
 
 module.exports = driverRequest;
