@@ -13,17 +13,13 @@ const driverRequest = (options) => {
     if(options.files.length > 0) {
         files = { };
         for(let i = 0; i < options.files.length; i++) {
-            if(options.files[i].url) {
-                files[options.files[i].name] = options.files[i].url;
-            } else {
-                files[options.files[i].name] = {
-                    value: options.files[i].data,
-                    options: {
-                        filename: options.files[i].filename,
-                        contentType: mimetypes.contentType(options.files[i].filename)
-                    }
-                };
-            }
+            files[options.files[i].name] = {
+                value: options.files[i].data,
+                options: {
+                    filename: options.files[i].filename,
+                    contentType: mimetypes.contentType(options.files[i].filename)
+                }
+            };
         }
     }
     

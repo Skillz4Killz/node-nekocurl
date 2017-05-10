@@ -2,36 +2,38 @@
  * Nekocurl
  * @description A HTTP client class that uses plug-in drivers to do HTTP requests.
  * @author      Charlotte Dunois (https://github.com/CharlotteDunois/node-nekocurl)
+ *
+ * @param     {string}                url                       The url, what else?
+ * @param     {object}                [options={ }]             Any options you want to pass.
+ * @param     {string|undefined}      options.driver            The driver which should be used.
+ * @param     {string}                [options.method='GET']    The request method.
+ * @param     {object}                [options.headers={ }]     HTTP-Headers.
+ * @param     {string|null}           [options.data=null]       The request payload.
+ * @param     {array}                 [options.files=[ ]]       An array containing objects ({ name, data, filename }), each representing a file.
+ * @param     {boolean}               [options.autostring=true] Automatically turn buffers into strings.
+ * @param     {string|undefined}      options.encoding          Encoding (only used by some drivers, e.g. request).
+ * @param     {boolean}               options.json              Set true, if payload is JSON and/or Nekocurl should automatically parse response JSON (Snekfetch does it depending on Content-Type).
+ * @returns   {Nekocurl}
+ * @throws    {Error}
 */
 
 class Nekocurl {
-    /**
-     * Creates a new instance of Nekocurl.
-     *
-     * @constructor
-     * @param     {string}                url                 The url, what else?
-     * @param     {object}                [options={ }]       Any options you want to pass.
-     * @param     {string}                options.method      The request method. Any of GET, POST, HEAD, PATCH, PUT and DELETE.
-     * @param     {object}                options.headers     HTTP-Headers.
-     * @param     {string|null}           options.data        The request payload.
-     * @param     {array}                 options.files       An array containing file objects (See <Nekocurl>.attachFile)
-     * @param     {boolean}               options.autostring  Automatically turn buffers into strings. (default true)
-     * @param     {string|undefined}      options.encoding    Encoding (only used by some drivers, e.g. request).
-     * @param     {boolean}               options.json        Set true, if payload is JSON and/or Nekocurl should automatically parse response JSON (Snekfetch does it depending on Content-Type).
-     * @param     {string|undefined}      options.drivers     The driver which should be used.
-     * @returns   {Nekocurl}
-     */
     constructor(url, options = { }) {
         this.url = url;
-        this.method = (options.method || 'GET').toUpperCase();
+        this.method = 'GET';
         this.headers = { };
         this.data = options.data || null;
         this.files = options.files || [ ];
         this.autostring = (options.autostring !== undefined ? options.autostring === true : true);
         this.encoding = (options.encoding !== undefined ? options.encoding : undefined);
         this.json = (options.json === true) || false;
-        this.driver = options.driver || Nekocurl.defaultDriver;
         
+        if(options.driver) {
+            this.setDriver(options.driver);
+        }
+        if(options.method) {
+            this.setMethod(options.method);
+        }
         if(options.headers) {
             this.setHeaders(options.headers);
         }
@@ -42,10 +44,15 @@ class Nekocurl {
      *
      * @param     {string}    driver      The driver which should be used.
      * @returns   {this}
+     * @throws    {Error}
      */
     setDriver(driver) {
-        this.driver = driver;
-        return this;
+        if(Nekocurl.availableDrivers.has(driver) === true) {
+            this.driver = driver;
+            return this;
+        }
+        
+        throw new Error('Nekocurl: Cannot find specified driver "'+driver+'"');
     }
     
     /**
@@ -55,10 +62,7 @@ class Nekocurl {
      * @returns   {this}
      */
     setMethod(method) {
-        if([ 'GET', 'POST', 'HEAD', 'PATCH', 'PUT', 'DELETE' ].includes(method.toUpperCase()) === true) {
-            this.method = method.toUpperCase();
-        }
-        
+        this.method = method.toUpperCase();
         return this;
     }
     
@@ -102,11 +106,9 @@ class Nekocurl {
     }
     
     /**
-     * Set multiple HTTP headers.
+     * Set the request payload.
      *
-     * @param     {object}    obj        Object containing HTTP-Headers.
-     * @param     {string}    obj.name   The name (or key) of the header.
-     * @param     {string}    obj.val    The value of the header.
+     * @param     {string}    data        The request paylaod.
      * @returns   {this}
      */
     setData(data) {
@@ -117,9 +119,9 @@ class Nekocurl {
     /**
      * Attach a file to the request.
      *
-     * @param     {string}    name       The name of the field.
-     * @param     {string}    data       The file data.
-     * @param     {string}    filename   The filename.
+     * @param     {string}           name       The name of the field.
+     * @param     {string|Buffer}    data       The file data.
+     * @param     {string}           filename   The filename.
      * @returns   {this}
      */
     attachFile(name, data, filename) {
@@ -131,7 +133,7 @@ class Nekocurl {
        * Sends the request.
        *
        * @param     {boolean}   [resolveWithFullResponse=false]         Determines if you get the full response or just the body.
-       * @returns   {Promise<string|Object>}
+       * @returns   {Promise<string|object>}
        */
     async send(resolveWithFullResponse) {
         if(this.headers['user-agent'] === undefined) {
@@ -167,7 +169,7 @@ class Nekocurl {
     /**
      * Sends the request and passes the request directly back.
      *
-     * @returns   {Promise<string|Object>}
+     * @returns   {Promise<object>}
      */
     sendPassthrough() {
         if(this.headers['user-agent'] === undefined) {
