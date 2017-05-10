@@ -10,7 +10,7 @@
  * @param     {object}                [options.headers={ }]     HTTP-Headers.
  * @param     {string|null}           [options.data=null]       The request payload.
  * @param     {array}                 [options.files=[ ]]       An array containing objects ({ name, data, filename }), each representing a file.
- * @param     {boolean}               [options.autostring=true] Automatically turn buffers into strings.
+ * @param     {boolean}               [options.autoString=true] Automatically turn buffers into strings.
  * @param     {string|undefined}      options.encoding          Encoding (only used by some drivers, e.g. request).
  * @param     {boolean}               options.json              Set true, if payload is JSON and/or Nekocurl should automatically parse response JSON (Snekfetch does it depending on Content-Type).
  * @returns   {Nekocurl}
@@ -24,7 +24,7 @@ class Nekocurl {
         this.headers = { };
         this.data = options.data || null;
         this.files = options.files || [ ];
-        this.autostring = (options.autostring !== undefined ? options.autostring === true : true);
+        this.autoString = (options.autoString !== undefined ? options.autoString === true : true);
         this.encoding = (options.encoding !== undefined ? options.encoding : undefined);
         this.json = (options.json === true) || false;
         
@@ -147,7 +147,7 @@ class Nekocurl {
         const request = this.getDriver()(Object.assign({}, this));
         const response = await request;
         
-        if(this.autostring === true && response.body instanceof Buffer) {
+        if(this.autoString === true && response.body instanceof Buffer) {
             response.body = response.body.tostring();
         }
         
