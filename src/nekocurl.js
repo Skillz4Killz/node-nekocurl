@@ -5,21 +5,24 @@
  *
  * @param     {string}                url                       The url, what else?
  * @param     {object}                [options={ }]             Any options you want to pass.
- * @param     {string|undefined}      options.driver            The driver which should be used.
+ * @param     {string}                options.driver            The driver which should be used.
  * @param     {string}                [options.method='GET']    The request method.
  * @param     {object}                [options.headers={ }]     HTTP-Headers.
  * @param     {string|null}           [options.data=null]       The request payload.
  * @param     {array}                 [options.files=[ ]]       An array containing objects ({ name, data, filename }), each representing a file.
  * @param     {boolean}               [options.autoString=true] Automatically turn buffers into strings.
- * @param     {string|undefined}      options.encoding          Encoding (only used by some drivers, e.g. request).
- * @param     {boolean}               options.json              Set true, if payload is JSON and/or Nekocurl should automatically parse response JSON (Snekfetch does it depending on Content-Type).
+ * @param     {string|null}           options.encoding          Encoding (only used by some drivers, e.g. request).
+ * @param     {boolean}               [options.json=false]      Set true, if payload is JSON and/or Nekocurl should automatically parse response JSON (Snekfetch does it depending on Content-Type).
  * @returns   {Nekocurl}
  * @throws    {Error}
 */
 
 class Nekocurl {
     constructor(url, options = { }) {
-        this.url = url;
+        if(url) {
+            this.setURL(url);
+        }
+        
         this.method = 'GET';
         this.headers = { };
         this.data = options.data || null;
@@ -58,7 +61,7 @@ class Nekocurl {
     /**
      * Set the method.
      *
-     * @param     {string}    method     The request method. Any of GET, POST, HEAD, PATCH, PUT and DELETE.
+     * @param     {string}    method     The HTTP request method.
      * @returns   {this}
      */
     setMethod(method) {
@@ -71,10 +74,15 @@ class Nekocurl {
      *
      * @param     {string}    url        The url, what else? (if you want to change it)
      * @returns   {this}
+     * @throws    {Error}
      */
     setURL(url) {
-        this.url = url;
-        return this;
+        if(Nekocurl.isValidURL(url) === true) {
+            this.url = url;
+            return this;
+        }
+        
+        throw new Error('Nekocurl: Invalid URL passed');
     }
     
     /**
@@ -136,6 +144,10 @@ class Nekocurl {
        * @returns   {Promise<string|object>}
        */
     async send(resolveWithFullResponse) {
+        if(!url) {
+            throw new Error('Nekocurl: No url specified');
+        }
+        
         if(this.headers['user-agent'] === undefined) {
             this.setHeader('User-Agent', 'Nekocurl v'+packagejson.version+' ('+this.getDrivername()+')');
         }
@@ -148,7 +160,7 @@ class Nekocurl {
         const response = await request;
         
         if(this.autoString === true && response.body instanceof Buffer) {
-            response.body = response.body.tostring();
+            response.body = response.body.toString();
         }
         
         if(this.json === true && !(response.body instanceof Object) && typeof response.body === 'string') {
@@ -170,8 +182,13 @@ class Nekocurl {
      * Sends the request and passes the request directly back.
      *
      * @returns   {Promise<object>}
+     * @throws    {Error}
      */
     sendPassthrough() {
+        if(!url) {
+            throw new Error('Nekocurl: No url specified');
+        }
+        
         if(this.headers['user-agent'] === undefined) {
             this.setHeader('User-Agent', 'Nekocurl v'+Nekocurl.version+'-'+this.getDrivername()+' (https://github.com/CharlotteDunois/node-nekocurl)');
         }
@@ -231,6 +248,16 @@ Nekocurl.defaultDriver = '';
  * Nekocurl version.
  */
 Nekocurl.version = packagejson.version;
+
+
+/**
+ * Checks if the passed url is valid.
+ * @param  {string}  url
+ * @returns {boolean}
+ */
+Nekocurl.isValidURL = (url) => {
+    return /^(https?:\/\/)?((([a-z\d]([a-z\d-]*[a-z\d])*)\.)+[a-z]{2,}|((\d{1,3}\.){3}\d{1,3}))(\:\d+)?(\/[-a-z\d%_.~+]*)*(\?[;&a-z\d%_.~+=-]*)?(\#[-a-z\d_]*)?$/i.test(url);
+};
 
 const drivers = fs.readdirSync(__dirname+'/drivers/');
 for(let drivername of drivers) {
