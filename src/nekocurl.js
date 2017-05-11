@@ -144,7 +144,7 @@ class Nekocurl {
        * @returns   {Promise<string|object>}
        */
     async send(resolveWithFullResponse) {
-        if(!url) {
+        if(!this.url) {
             throw new Error('Nekocurl: No url specified');
         }
         
@@ -185,7 +185,7 @@ class Nekocurl {
      * @throws    {Error}
      */
     sendPassthrough() {
-        if(!url) {
+        if(!this.url) {
             throw new Error('Nekocurl: No url specified');
         }
         
