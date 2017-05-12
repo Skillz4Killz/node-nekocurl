@@ -155,7 +155,7 @@ class Nekocurl {
         
         throw new Error('Nekocurl: Invalid data passed');
     }
-    
+        
     /**
      * Attach a file to the request.
      *
@@ -177,15 +177,12 @@ class Nekocurl {
     /**
      * Attach multiple files to the request.
      *
-     * @param     {object}           files            Object containing files.
-     * @param     {string}           files.name       The name of the field.
-     * @param     {string|Buffer}    files.data       The file data.
-     * @param     {string}           files.filename   The filename.
+     * @param     {Array<FileOptions>}  files         Arrays containing file objects.
      * @returns   {this}
      * @throws    {Error}
      */
     attachFiles(files) {
-        if(files && files instanceof Object) {
+        if(files && files instanceof Array) {
             for(const file of files) {
                 this.attachFile(file.name, file.data, file.filename);
             }
@@ -279,6 +276,13 @@ class Nekocurl {
         return this._options.driver;
     }
 }
+
+/**
+ * @typedef      {object}           FileOptions
+ * @property     {string}           name          The name of the field.
+ * @property     {string|Buffer}    data          The file data.
+ * @property     {string}           filename      The filename.
+ */
 
 const { NEKOCURL_DEFAULT_DRIVER } = process.env;
 const fs = require('fs');

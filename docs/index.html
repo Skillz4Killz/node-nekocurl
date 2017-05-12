@@ -109,6 +109,12 @@
                       </a></li>
                       
                       <li><a
+                        href='#Nekocurl#attachFiles'
+                        class='regular pre-open'>
+                        #attachFiles
+                      </a></li>
+                      
+                      <li><a
                         href='#Nekocurl#send'
                         class='regular pre-open'>
                         #send
@@ -137,6 +143,16 @@
                   
                   
                 </div>
+                
+                </li>
+              
+                
+                <li><a
+                  href='#fileoptions'
+                  class="">
+                  FileOptions
+                  
+                </a>
                 
                 </li>
               
@@ -657,6 +673,13 @@
   
 
   
+    <div class='py1 quiet mt1 prose-big'>Throws</div>
+    <ul>
+      
+        <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error">Error</a>: </li>
+      
+    </ul>
+  
 
   
 
@@ -809,6 +832,13 @@
   
 
   
+    <div class='py1 quiet mt1 prose-big'>Throws</div>
+    <ul>
+      
+        <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error">Error</a>: </li>
+      
+    </ul>
+  
 
   
 
@@ -907,6 +937,13 @@
   
 
   
+    <div class='py1 quiet mt1 prose-big'>Throws</div>
+    <ul>
+      
+        <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error">Error</a>: </li>
+      
+    </ul>
+  
 
   
 
@@ -974,6 +1011,13 @@
     
   
 
+  
+    <div class='py1 quiet mt1 prose-big'>Throws</div>
+    <ul>
+      
+        <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error">Error</a>: </li>
+      
+    </ul>
   
 
   
@@ -1060,6 +1104,88 @@
     
   
 
+  
+    <div class='py1 quiet mt1 prose-big'>Throws</div>
+    <ul>
+      
+        <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error">Error</a>: </li>
+      
+    </ul>
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+      </div>
+    </div>
+  
+    <div class='border-bottom' id='Nekocurl#attachFiles'>
+      <div class="clearfix small pointer toggle-sibling">
+        <div class="py1 contain">
+            <a class='icon pin-right py1 dark-link caret-right'>▸</a>
+            <span class='code strong strong truncate'>attachFiles(files)</span>
+        </div>
+      </div>
+      <div class="clearfix display-none toggle-target">
+        <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+
+  <p>Attach multiple files to the request.</p>
+
+
+  <div class='pre p1 fill-light mt0'>attachFiles(files: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a>&#x3C;<a href="#fileoptions">FileOptions</a>>): this</div>
+  
+  
+
+  
+  
+  
+  
+  
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Parameters</div>
+    <div class='prose'>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>files</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a>&#x3C;<a href="#fileoptions">FileOptions</a>>)</code>
+	    Arrays containing file objects.
+
+          </div>
+          
+        </div>
+      
+    </div>
+  
+
+  
+
+  
+    
+      <div class='py1 quiet mt1 prose-big'>Returns</div>
+      <code>this</code>:
+        
+
+      
+    
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Throws</div>
+    <ul>
+      
+        <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error">Error</a>: </li>
+      
+    </ul>
   
 
   
@@ -1313,6 +1439,83 @@
     </div>
   
 </div>
+
+  
+
+  
+</section>
+
+          
+        
+          
+            <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+  <div class='clearfix'>
+    
+    <h3 class='fl m0' id='fileoptions'>
+      FileOptions
+    </h3>
+    
+    
+  </div>
+  
+
+  
+
+  <div class='pre p1 fill-light mt0'>FileOptions</div>
+  
+    <p>
+      Type:
+      <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object">object</a>
+    </p>
+  
+  
+
+  
+  
+  
+  
+  
+  
+
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Properties</div>
+    <div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>name</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>)</code>
+          : The name of the field.
+
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>data</span> <code class='quiet'>((<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">string</a> | <a href="https://nodejs.org/api/buffer.html">Buffer</a>))</code>
+          : The file data.
+
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>filename</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>)</code>
+          : The filename.
+
+          
+        </div>
+      
+    </div>
+  
+
+  
+
+  
+
+  
+
+  
 
   
 
