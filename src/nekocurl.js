@@ -199,7 +199,7 @@ class Nekocurl {
             this.setHeader('User-Agent', 'Nekocurl v'+Nekocurl.version+'-'+this.getDrivername()+' (https://github.com/CharlotteDunois/node-nekocurl)');
         }
         
-        if(this.options.json === true && this.headers['content-type'] !== 'application/json') {
+        if(this.options.json === true && this.options.headers['content-type'] !== 'application/json') {
             this.setHeader('Content-Type', 'application/json');
         }
         
@@ -265,7 +265,7 @@ for(let drivername of drivers) {
     }
 }
 
-if(NEKOCURL_DEFAULT_DRIVER && Nekocurl.availableDrivers.has(NEKOCURL_DEFAULT_DRIVER) === true) {
+if(NEKOCURL_DEFAULT_DRIVER && Nekocurl.availableDrivers.has(NEKOCURL_DEFAULT_DRIVER)) {
     Nekocurl.defaultDriver = NEKOCURL_DEFAULT_DRIVER;
 } else if(Nekocurl.availableDrivers.has('snekfetch')) {
     Nekocurl.defaultDriver = 'snekfetch';
