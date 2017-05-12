@@ -185,8 +185,8 @@ class Nekocurl {
      * @throws    {Error}
      */
     attachFiles(files) {
-        if(options.files && options.files instanceof Object) {
-            for(const file of options.files) {
+        if(files && files instanceof Object) {
+            for(const file of files) {
                 this.attachFile(file.name, file.data, file.filename);
             }
             
@@ -197,46 +197,47 @@ class Nekocurl {
     }
     
     /**
-       * Sends the request.
-       *
-       * @param     {boolean}   [resolveWithFullResponse=false]         Determines if you get the full response or just the body.
-       * @returns   {Promise<string|object>}
-       */
+     * Sends the request.
+     *
+     * @param     {boolean}   [resolveWithFullResponse=false]         Determines if you get the full response or just the body.
+     * @returns   {Promise<string|object>}
+     */
     async send(resolveWithFullResponse) {
-        if(!this._options.url) {
+        const options = this._options;
+        if(!options.url) {
             throw new Error('Nekocurl: No url specified');
         }
-        
-        if(this._options.headers['user-agent'] === undefined) {
-            this.setHeader('User-Agent', 'Nekocurl v'+Nekocurl.version+' '+this._options.driver+' (https://github.com/CharlotteDunois/node-nekocurl)');
+
+        if(options.headers['user-agent'] === undefined) {
+            this.setHeader('User-Agent', 'Nekocurl v'+Nekocurl.version+' '+options.driver+' (https://github.com/CharlotteDunois/node-nekocurl)');
         }
-        
-        if(this._options.json === true && this._options.headers['content-type'] !== 'application/json') {
+
+        if(options.json === true && options.headers['content-type'] !== 'application/json') {
             this.setHeader('Content-Type', 'application/json');
         }
-        
-        const request = this.getDriver()(this._options);
+
+        const request = this.getDriver()(options);
         const response = await request;
-        
-        if(this._options.autoString === true && response.body instanceof Buffer) {
+
+        if(options.autoString === true && response.body instanceof Buffer) {
             response.body = response.body.toString();
         }
-        
-        if(this._options.json === true && !(response.body instanceof Object) && typeof response.body === 'string') {
+
+        if(options.json === true && !(response.body instanceof Object) && typeof response.body === 'string') {
             try {
                 response.body = JSON.parse(response.body);
             } catch(err) {
-                  
+                
             }
         }
-        
+
         if(!!resolveWithFullResponse === true) {
             return response;
         }
-        
+
         return response.body;
     }
-    
+
     /**
      * Sends the request and passes the request directly back.
      *
@@ -244,19 +245,20 @@ class Nekocurl {
      * @throws    {Error}
      */
     sendPassthrough() {
-        if(!this._options.url) {
+        const options = this._options;
+        if(!options.url) {
             throw new Error('Nekocurl: No url specified');
         }
-        
-        if(this._options.headers['user-agent'] === undefined) {
-            this.setHeader('User-Agent', 'Nekocurl v'+Nekocurl.version+' '+this._options.driver+' (https://github.com/CharlotteDunois/node-nekocurl)');
+
+        if(options.headers['user-agent'] === undefined) {
+            this.setHeader('User-Agent', 'Nekocurl v'+Nekocurl.version+' '+options.driver+' (https://github.com/CharlotteDunois/node-nekocurl)');
         }
-        
-        if(this._options.json === true && this._options.headers['content-type'] !== 'application/json') {
+
+        if(options.json === true && options.headers['content-type'] !== 'application/json') {
             this.setHeader('Content-Type', 'application/json');
         }
-        
-        return this.getDriver()(this._options);
+
+        return this.getDriver()(options);
     }
     
     /**
