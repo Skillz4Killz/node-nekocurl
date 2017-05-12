@@ -7,7 +7,7 @@
  * @param     {object}                [options={ }]             Any options you want to pass.
  * @param     {string}                options.driver            The driver which should be used.
  * @param     {string}                [options.method='GET']    The request method.
- * @param     {object}                [options.headers={ }]     HTTP-Headers.
+ * @param     {HeadersOptions}        [options.headers={ }]     HTTP-Headers.
  * @param     {string|null}           [options.data=null]       The request payload.
  * @param     {array}                 [options.files=[ ]]       An array containing objects ({ name, data, filename }), each representing a file.
  * @param     {boolean}               [options.autoString=true] Automatically turn buffers into strings.
@@ -122,9 +122,7 @@ class Nekocurl {
     /**
      * Set multiple HTTP headers.
      *
-     * @param     {object}    obj        Object containing HTTP-Headers.
-     * @param     {string}    obj.name   The name (or key) of the header.
-     * @param     {string}    obj.val    The value of the header.
+     * @param     {HeaderOptions}   obj  HTTP-Headers.
      * @returns   {this}
      * @throws    {Error}
      */
@@ -283,6 +281,11 @@ class Nekocurl {
  * @property     {string|Buffer}    data          The file data.
  * @property     {string}           filename      The filename.
  */
+ 
+/**
+ * @typedef      {object}           HeadersOptions
+ * @description  Each key of an property is the name (or key) of the HTTP-Header, while the property value is the HTTP-Header value.
+ */
 
 const { NEKOCURL_DEFAULT_DRIVER } = process.env;
 const fs = require('fs');
@@ -323,7 +326,7 @@ for(let drivername of drivers) {
     }
 }
 
-if(NEKOCURL_DEFAULT_DRIVER && Nekocurl.availableDrivers.has(NEKOCURL_DEFAULT_DRIVER)) {
+if(Nekocurl.availableDrivers.has(NEKOCURL_DEFAULT_DRIVER)) {
     Nekocurl.defaultDriver = NEKOCURL_DEFAULT_DRIVER;
 } else if(Nekocurl.availableDrivers.has('snekfetch')) {
     Nekocurl.defaultDriver = 'snekfetch';

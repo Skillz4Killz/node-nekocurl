@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset='utf-8' />
-  <title>nekocurl 0.2.4 | Documentation</title>
+  <title>nekocurl 0.2.5 | Documentation</title>
   <meta name='viewport' content='width=device-width,initial-scale=1'>
   <link href='assets/bass.css' type='text/css' rel='stylesheet' />
   <link href='assets/style.css' type='text/css' rel='stylesheet' />
@@ -14,7 +14,7 @@
       <div class='fixed xs-hide fix-3 overflow-auto max-height-100'>
         <div class='py1 px2'>
           <h3 class='mb0 no-anchor'>nekocurl</h3>
-          <div class='mb1'><code>0.2.4</code></div>
+          <div class='mb1'><code>0.2.5</code></div>
           <input
             placeholder='Filter'
             id='filter-input'
@@ -156,6 +156,16 @@
                 
                 </li>
               
+                
+                <li><a
+                  href='#headersoptions'
+                  class="">
+                  HeadersOptions
+                  
+                </a>
+                
+                </li>
+              
             </ul>
           </div>
           <div class='mt1 h6 quiet'>
@@ -244,7 +254,7 @@
                 </tr>
               
                 <tr>
-                  <td class='break-word'><span class='code bold'>options.headers</span> <code class='quiet'><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object">object</a></code>
+                  <td class='break-word'><span class='code bold'>options.headers</span> <code class='quiet'><a href="#headersoptions">HeadersOptions</a></code>
                   
                     (default <code>{}</code>)
                   </td>
@@ -867,7 +877,7 @@
   <p>Set multiple HTTP headers.</p>
 
 
-  <div class='pre p1 fill-light mt0'>setHeaders(obj: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object">object</a>): this</div>
+  <div class='pre p1 fill-light mt0'>setHeaders(obj: HeaderOptions): this</div>
   
   
 
@@ -884,40 +894,10 @@
       
         <div class='space-bottom0'>
           <div>
-            <span class='code bold'>obj</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object">object</a>)</code>
-	    Object containing HTTP-Headers.
+            <span class='code bold'>obj</span> <code class='quiet'>(HeaderOptions)</code>
+	    HTTP-Headers.
 
           </div>
-          
-          <table class='mt1 mb2 fixed-table h5 col-12'>
-            <colgroup>
-              <col width='30%' />
-              <col width='70%' />
-            </colgroup>
-            <thead>
-              <tr class='bold fill-light'>
-                <th>Name</th>
-                <th>Description</th>
-              </tr>
-            </thead>
-            <tbody class='mt1'>
-              
-                <tr>
-                  <td class='break-word'><span class='code bold'>obj.name</span> <code class='quiet'><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">string</a></code>
-                  </td>
-                  <td class='break-word'><span>The name (or key) of the header.
-</span></td>
-                </tr>
-              
-                <tr>
-                  <td class='break-word'><span class='code bold'>obj.val</span> <code class='quiet'><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">string</a></code>
-                  </td>
-                  <td class='break-word'><span>The value of the header.
-</span></td>
-                </tr>
-              
-            </tbody>
-          </table>
           
         </div>
       
@@ -1507,6 +1487,58 @@
         </div>
       
     </div>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+          
+        
+          
+            <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+  <div class='clearfix'>
+    
+    <h3 class='fl m0' id='headersoptions'>
+      HeadersOptions
+    </h3>
+    
+    
+  </div>
+  
+
+  <p>Each key of an property is the name (or key) of the HTTP-Header, while the property value is the HTTP-Header value.</p>
+
+
+  <div class='pre p1 fill-light mt0'>HeadersOptions</div>
+  
+    <p>
+      Type:
+      <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object">object</a>
+    </p>
+  
+  
+
+  
+  
+  
+  
+  
+  
+
+  
+
   
 
   
