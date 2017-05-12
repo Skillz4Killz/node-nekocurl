@@ -19,17 +19,23 @@
 
 class Nekocurl {
     constructor(url, options = { }) {
+        if(!Nekocurl.defaultDriver) {
+            throw new Error('Nekocurl: No drivers available');
+        }
+        
+        this.options = { };
         if(url) {
             this.setURL(url);
         }
         
-        this.method = 'GET';
-        this.headers = { };
-        this.data = options.data || null;
-        this.files = options.files || [ ];
-        this.autoString = (options.autoString !== undefined ? options.autoString === true : true);
-        this.encoding = (options.encoding !== undefined ? options.encoding : undefined);
-        this.json = (options.json === true) || false;
+        this.options.driver = Nekocurl.defaultDriver;
+        this.options.method = 'GET';
+        this.options.headers = { };
+        this.options.data = options.data || null;
+        this.options.files = options.files || [ ];
+        this.options.autoString = (options.autoString !== undefined ? !!options.autoString : true);
+        this.options.encoding = (options.encoding !== undefined ? options.encoding : undefined);
+        this.options.json = !!options.json;
         
         if(options.driver) {
             this.setDriver(options.driver);
@@ -50,8 +56,8 @@ class Nekocurl {
      * @throws    {Error}
      */
     setDriver(driver) {
-        if(Nekocurl.availableDrivers.has(driver) === true) {
-            this.driver = driver;
+        if(Nekocurl.availableDrivers.has(driver)) {
+            this.options.driver = driver;
             return this;
         }
         
@@ -65,20 +71,20 @@ class Nekocurl {
      * @returns   {this}
      */
     setMethod(method) {
-        this.method = method.toUpperCase();
+        this.options.method = method.toUpperCase();
         return this;
     }
     
     /**
      * Set the url.
      *
-     * @param     {string}    url        The url, what else? (if you want to change it)
+     * @param     {string}    url        Do I really need to explain this?
      * @returns   {this}
      * @throws    {Error}
      */
     setURL(url) {
-        if(Nekocurl.isValidURL(url) === true) {
-            this.url = url;
+        if(Nekocurl.isValidURL(url)) {
+            this.options.url = url;
             return this;
         }
         
@@ -93,7 +99,7 @@ class Nekocurl {
      * @returns   {this}
      */
     setHeader(name, val) {
-        this.headers[name.toLowerCase()] = val;
+        this.options.headers[name.toLowerCase()] = val;
         return this;
     }
     
@@ -120,7 +126,7 @@ class Nekocurl {
      * @returns   {this}
      */
     setData(data) {
-        this.data = data;
+        this.options.data = data;
         return this;
     }
     
@@ -133,7 +139,7 @@ class Nekocurl {
      * @returns   {this}
      */
     attachFile(name, data, filename) {
-        this.files.push({ name: name, data: data, filename: filename });
+        this.options.files.push({ name: name, data: data, filename: filename });
         return this;
     }
     
@@ -144,26 +150,26 @@ class Nekocurl {
        * @returns   {Promise<string|object>}
        */
     async send(resolveWithFullResponse) {
-        if(!this.url) {
+        if(!this.options.url) {
             throw new Error('Nekocurl: No url specified');
         }
         
-        if(this.headers['user-agent'] === undefined) {
-            this.setHeader('User-Agent', 'Nekocurl v'+packagejson.version+' ('+this.getDrivername()+')');
+        if(this.options.headers['user-agent'] === undefined) {
+            this.setHeader('User-Agent', 'Nekocurl v'+Nekocurl.version+' ('+this.getDrivername()+')');
         }
         
-        if(this.json === true && this.headers['content-type'] !== 'application/json') {
+        if(this.options.json === true && this.options.headers['content-type'] !== 'application/json') {
             this.setHeader('Content-Type', 'application/json');
         }
         
-        const request = this.getDriver()(Object.assign({}, this));
+        const request = this.getDriver()(this.options);
         const response = await request;
         
-        if(this.autoString === true && response.body instanceof Buffer) {
+        if(this.options.autoString === true && response.body instanceof Buffer) {
             response.body = response.body.toString();
         }
         
-        if(this.json === true && !(response.body instanceof Object) && typeof response.body === 'string') {
+        if(this.options.json === true && !(response.body instanceof Object) && typeof response.body === 'string') {
             try {
                 response.body = JSON.parse(response.body);
             } catch(err) {
@@ -185,19 +191,19 @@ class Nekocurl {
      * @throws    {Error}
      */
     sendPassthrough() {
-        if(!this.url) {
+        if(!this.options.url) {
             throw new Error('Nekocurl: No url specified');
         }
         
-        if(this.headers['user-agent'] === undefined) {
+        if(this.options.headers['user-agent'] === undefined) {
             this.setHeader('User-Agent', 'Nekocurl v'+Nekocurl.version+'-'+this.getDrivername()+' (https://github.com/CharlotteDunois/node-nekocurl)');
         }
         
-        if(this.json === true && this.headers['content-type'] !== 'application/json') {
+        if(this.options.json === true && this.headers['content-type'] !== 'application/json') {
             this.setHeader('Content-Type', 'application/json');
         }
         
-        return this.getDriver()(Object.assign({}, this));
+        return this.getDriver()(this.options);
     }
     
     /**
@@ -206,11 +212,7 @@ class Nekocurl {
      * @returns   {Function}
      */
     getDriver() {
-        if(this.driver && Nekocurl.availableDrivers.has(this.driver) === true) {
-            return Nekocurl.availableDrivers.get(this.driver);
-        }
-        
-        return Nekocurl.availableDrivers.get(Nekocurl.defaultDriver);
+        return Nekocurl.availableDrivers.get(this.options.driver);
     }
     
     /**
@@ -219,19 +221,12 @@ class Nekocurl {
      * @returns   {string}
      */
     getDrivername() {
-        if(this.driver && Nekocurl.availableDrivers.has(this.driver) === true) {
-            return this.driver;
-        }
-        
-        return Nekocurl.defaultDriver;
+        return this.options.driver;
     }
 }
 
+const { NEKOCURL_DEFAULT_DRIVER } = process.env;
 const fs = require('fs');
-const packagejson = require(__dirname+'/../package.json');
-if(packagejson.version.substr(-2) === '.0') {
-    packagejson.version = packagejson.version.substr(0, (packagejson.version.length - 2));
-}
 
 /**
  * All drivers available for use.
@@ -240,14 +235,14 @@ if(packagejson.version.substr(-2) === '.0') {
 Nekocurl.availableDrivers = new Map();
 
 /**
- * Nekocurl's default driver, if not overwritten instance-specific.
+ * Nekocurl's default driver, if not overwritten instance-specific. Use environment variable 'NEKOCURL_DEFAULT_DRIVER' to overwrite the library's default driver (if available).
  */
 Nekocurl.defaultDriver = '';
 
 /**
  * Nekocurl version.
  */
-Nekocurl.version = packagejson.version;
+Nekocurl.version = require(__dirname+'/../package.json').version;
 
 
 /**
@@ -270,12 +265,12 @@ for(let drivername of drivers) {
     }
 }
 
-if(Nekocurl.availableDrivers.has('snekfetch') === true) {
+if(NEKOCURL_DEFAULT_DRIVER && Nekocurl.availableDrivers.has(NEKOCURL_DEFAULT_DRIVER) === true) {
+    Nekocurl.defaultDriver = NEKOCURL_DEFAULT_DRIVER;
+} else if(Nekocurl.availableDrivers.has('snekfetch')) {
     Nekocurl.defaultDriver = 'snekfetch';
 } else if(Nekocurl.availableDrivers.size > 0) {
     Nekocurl.defaultDriver = Nekocurl.availableDrivers.keys().next().value;
-} else {
-    throw new Error('No Nekocurl drivers available.');
 }
 
 module.exports = Nekocurl;
