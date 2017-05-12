@@ -23,19 +23,19 @@ class Nekocurl {
             throw new Error('Nekocurl: No drivers available');
         }
         
-        this.options = { };
+        this._options = { };
         if(url) {
             this.setURL(url);
         }
         
-        this.options.driver = Nekocurl.defaultDriver;
-        this.options.method = 'GET';
-        this.options.headers = { };
-        this.options.data = options.data || null;
-        this.options.files = options.files || [ ];
-        this.options.autoString = (options.autoString !== undefined ? !!options.autoString : true);
-        this.options.encoding = (options.encoding !== undefined ? options.encoding : undefined);
-        this.options.json = !!options.json;
+        this._options.driver = Nekocurl.defaultDriver;
+        this._options.method = 'GET';
+        this._options.headers = { };
+        this._options.data = null;
+        this._options.files = [ ];
+        this._options.autoString = (options.autoString !== undefined ? !!options.autoString : true);
+        this._options.encoding = (options.encoding !== undefined ? options.encoding : undefined);
+        this._options.json = !!options.json;
         
         if(options.driver) {
             this.setDriver(options.driver);
@@ -45,6 +45,12 @@ class Nekocurl {
         }
         if(options.headers) {
             this.setHeaders(options.headers);
+        }
+        if(options.data) {
+            this.setData(options.data);
+        }
+        if(options.files) {
+            this.attachFiles(options.files);
         }
     }
     
@@ -57,7 +63,7 @@ class Nekocurl {
      */
     setDriver(driver) {
         if(Nekocurl.availableDrivers.has(driver)) {
-            this.options.driver = driver;
+            this._options.driver = driver;
             return this;
         }
         
@@ -69,10 +75,15 @@ class Nekocurl {
      *
      * @param     {string}    method     The HTTP request method.
      * @returns   {this}
+     * @throws    {Error}
      */
     setMethod(method) {
-        this.options.method = method.toUpperCase();
-        return this;
+        if(typeof method === 'string') {
+            this._options.method = method.toUpperCase();
+            return this;
+        }
+        
+        throw new Error('Nekocurl: Invalid method passed');
     }
     
     /**
@@ -84,7 +95,7 @@ class Nekocurl {
      */
     setURL(url) {
         if(Nekocurl.isValidURL(url)) {
-            this.options.url = url;
+            this._options.url = url;
             return this;
         }
         
@@ -97,10 +108,15 @@ class Nekocurl {
      * @param     {string}    name       The name (or key) of the header.
      * @param     {string}    val        The value of the header.
      * @returns   {this}
+     * @throws    {Error}
      */
     setHeader(name, val) {
-        this.options.headers[name.toLowerCase()] = val;
-        return this;
+        if(typeof name === 'string' && val !== undefined && String(val).length > 0) {
+            this._options.headers[name.toLowerCase()] = String(val);
+            return this;
+        }
+        
+        throw new Error('Nekocurl: Invalid header passed');
     }
     
     /**
@@ -110,13 +126,18 @@ class Nekocurl {
      * @param     {string}    obj.name   The name (or key) of the header.
      * @param     {string}    obj.val    The value of the header.
      * @returns   {this}
+     * @throws    {Error}
      */
     setHeaders(obj) {
-        for(const key of Object.keys(obj)) {
-            this.setHeader(key, obj[key]);
+        if(options.headers && options.headers instanceof Object) {
+            for(const key of Object.keys(obj)) {
+                this.setHeader(key, obj[key]);
+            }
+            
+            return this;
         }
         
-        return this;
+        throw new Error('Nekocurl: Invalid headers passed');
     }
     
     /**
@@ -124,10 +145,15 @@ class Nekocurl {
      *
      * @param     {string}    data        The request paylaod.
      * @returns   {this}
+     * @throws    {Error}
      */
     setData(data) {
-        this.options.data = data;
-        return this;
+        if(typeof data === 'string') {
+            this._options.data = data;
+            return this;
+        }
+        
+        throw new Error('Nekocurl: Invalid data passed');
     }
     
     /**
@@ -137,10 +163,37 @@ class Nekocurl {
      * @param     {string|Buffer}    data       The file data.
      * @param     {string}           filename   The filename.
      * @returns   {this}
+     * @throws    {Error}
      */
     attachFile(name, data, filename) {
-        this.options.files.push({ name: name, data: data, filename: filename });
-        return this;
+        if(typeof name === 'string' && (data instanceof Buffer || typeof data === 'string') && typeof filename === 'string') {
+            this._options.files.push({ name: name, data: data, filename: filename });
+            return this;
+        }
+        
+        throw new Error('Nekocurl: Invalid file passed');
+    }
+    
+    /**
+     * Attach multiple files to the request.
+     *
+     * @param     {object}           files            Object containing files.
+     * @param     {string}           files.name       The name of the field.
+     * @param     {string|Buffer}    files.data       The file data.
+     * @param     {string}           files.filename   The filename.
+     * @returns   {this}
+     * @throws    {Error}
+     */
+    attachFiles(files) {
+        if(options.files && options.files instanceof Object) {
+            for(const file of options.files) {
+                this.attachFile(file.name, file.data, file.filename);
+            }
+            
+            return this;
+        }
+        
+        throw new Error('Nekocurl: Invalid files passed');
     }
     
     /**
@@ -150,26 +203,26 @@ class Nekocurl {
        * @returns   {Promise<string|object>}
        */
     async send(resolveWithFullResponse) {
-        if(!this.options.url) {
+        if(!this._options.url) {
             throw new Error('Nekocurl: No url specified');
         }
         
-        if(this.options.headers['user-agent'] === undefined) {
-            this.setHeader('User-Agent', 'Nekocurl v'+Nekocurl.version+' ('+this.getDrivername()+')');
+        if(this._options.headers['user-agent'] === undefined) {
+            this.setHeader('User-Agent', 'Nekocurl v'+Nekocurl.version+' '+this._options.driver+' (https://github.com/CharlotteDunois/node-nekocurl)');
         }
         
-        if(this.options.json === true && this.options.headers['content-type'] !== 'application/json') {
+        if(this._options.json === true && this._options.headers['content-type'] !== 'application/json') {
             this.setHeader('Content-Type', 'application/json');
         }
         
-        const request = this.getDriver()(this.options);
+        const request = this.getDriver()(this._options);
         const response = await request;
         
-        if(this.options.autoString === true && response.body instanceof Buffer) {
+        if(this._options.autoString === true && response.body instanceof Buffer) {
             response.body = response.body.toString();
         }
         
-        if(this.options.json === true && !(response.body instanceof Object) && typeof response.body === 'string') {
+        if(this._options.json === true && !(response.body instanceof Object) && typeof response.body === 'string') {
             try {
                 response.body = JSON.parse(response.body);
             } catch(err) {
@@ -191,19 +244,19 @@ class Nekocurl {
      * @throws    {Error}
      */
     sendPassthrough() {
-        if(!this.options.url) {
+        if(!this._options.url) {
             throw new Error('Nekocurl: No url specified');
         }
         
-        if(this.options.headers['user-agent'] === undefined) {
-            this.setHeader('User-Agent', 'Nekocurl v'+Nekocurl.version+'-'+this.getDrivername()+' (https://github.com/CharlotteDunois/node-nekocurl)');
+        if(this._options.headers['user-agent'] === undefined) {
+            this.setHeader('User-Agent', 'Nekocurl v'+Nekocurl.version+' '+this._options.driver+' (https://github.com/CharlotteDunois/node-nekocurl)');
         }
         
-        if(this.options.json === true && this.options.headers['content-type'] !== 'application/json') {
+        if(this._options.json === true && this._options.headers['content-type'] !== 'application/json') {
             this.setHeader('Content-Type', 'application/json');
         }
         
-        return this.getDriver()(this.options);
+        return this.getDriver()(this._options);
     }
     
     /**
@@ -212,7 +265,7 @@ class Nekocurl {
      * @returns   {Function}
      */
     getDriver() {
-        return Nekocurl.availableDrivers.get(this.options.driver);
+        return Nekocurl.availableDrivers.get(this._options.driver);
     }
     
     /**
@@ -221,7 +274,7 @@ class Nekocurl {
      * @returns   {string}
      */
     getDrivername() {
-        return this.options.driver;
+        return this._options.driver;
     }
 }
 
@@ -243,7 +296,6 @@ Nekocurl.defaultDriver = '';
  * Nekocurl version.
  */
 Nekocurl.version = require(__dirname+'/../package.json').version;
-
 
 /**
  * Checks if the passed url is valid.
