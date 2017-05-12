@@ -129,7 +129,7 @@ class Nekocurl {
      * @throws    {Error}
      */
     setHeaders(obj) {
-        if(options.headers && options.headers instanceof Object) {
+        if(obj instanceof Object) {
             for(const key of Object.keys(obj)) {
                 this.setHeader(key, obj[key]);
             }
@@ -182,7 +182,7 @@ class Nekocurl {
      * @throws    {Error}
      */
     attachFiles(files) {
-        if(files && files instanceof Array) {
+        if(files instanceof Array) {
             for(const file of files) {
                 this.attachFile(file.name, file.data, file.filename);
             }
