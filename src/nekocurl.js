@@ -55,6 +55,16 @@ class Nekocurl {
     }
     
     /**
+     * Checks if a given driver exists.
+     *
+     * @param     {string}    driver      The driver to test for existence
+     * @returns   {bool}
+     */
+    hasDriver(driver) {
+        return Nekocurl.availableDrivers.has(driver);
+    }
+    
+    /**
      * Set the driver.
      *
      * @param     {string}    driver      The driver which should be used.
@@ -312,7 +322,7 @@ Nekocurl.version = require(__dirname+'/../package.json').version;
  * @returns {boolean}
  */
 Nekocurl.isValidURL = (url) => {
-    return /^(https?:\/\/)?((([a-z\d]([a-z\d-]*[a-z\d])*)\.)+[a-z]{2,}|((\d{1,3}\.){3}\d{1,3}))(\:\d+)?(\/[-a-z\d%_.~+]*)*(\?[;&a-z\d%_.~+=-]*)?(\#[-a-z\d_]*)?$/i.test(url);
+    return /^(?:(?:https?):\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,}))\.?)(?::\d{2,5})?(?:[/?#]\S*)?$/i.test(url);
 };
 
 const drivers = fs.readdirSync(__dirname+'/drivers/');
