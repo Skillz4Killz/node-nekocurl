@@ -11,7 +11,14 @@ npm install nekocurl
 # Example
 ```js
 const Nekocurl = require('nekocurl');
-(new Nekocurl('https://github.com/some/JSON/endpoint.json', { driver: 'snekfetch', method: 'GET', json: true })).send().then((json) => {
+(new Nekocurl(
+    'https://github.com/some/JSON/endpoint.json',
+    {
+        driver: 'snekfetch',
+        method: 'GET',
+        json: true
+    }
+)).send().then((json) => {
     console.log(json);
 });
 ```
