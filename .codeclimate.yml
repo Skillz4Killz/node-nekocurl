@@ -2,7 +2,7 @@ engines:
   eslint:
     enabled: true
   duplication:
-  	enabled: false
+    enabled: false
 exclude_paths:
 - "docs/"
 - "node_modules/"
