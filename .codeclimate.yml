@@ -6,8 +6,6 @@ engines:
     checks:
       global-require:
         enabled: false
-      no-empty:
-        enabled: false
   duplication:
     enabled: false
 ratings:

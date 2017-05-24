@@ -5,4 +5,5 @@
  * Website: https://github.com/CharlotteDunois/node-nekocurl
 */
 
-module.exports = require(__dirname+'/src/nekocurl.js');
+const path = require('path');
+module.exports = require(path.join(__dirname, 'src', 'nekocurl.js'));

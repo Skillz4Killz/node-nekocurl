@@ -299,6 +299,7 @@ class Nekocurl {
 
 const { NEKOCURL_DEFAULT_DRIVER } = process.env;
 const fs = require('fs');
+const path = require('path');
 
 /**
  * All drivers available for use.
@@ -314,7 +315,7 @@ Nekocurl.defaultDriver = '';
 /**
  * Nekocurl version.
  */
-Nekocurl.version = require(__dirname+'/../package.json').version;
+Nekocurl.version = require(path.join(__dirname, '..', 'package.json')).version;
 
 /**
  * Checks if the passed url is valid.
@@ -329,9 +330,9 @@ const drivers = fs.readdirSync(__dirname+'/drivers/');
 for(let drivername of drivers) {
     if(drivername.endsWith('.driver.js')) {
         try {
-            Nekocurl.availableDrivers.set(drivername.substr(0, (drivername.length - 10)), require(__dirname+'/drivers/'+drivername));
+            Nekocurl.availableDrivers.set(drivername.substr(0, (drivername.length - 10)), require(path.join(__dirname, 'drivers', drivername)));
         } catch(error) {
-            
+            /* continue regardless of error */
         }
     }
 }

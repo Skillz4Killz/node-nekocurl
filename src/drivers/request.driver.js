@@ -9,7 +9,7 @@ const mimetypes = require('mime-types');
 const request = require('request');
 
 const driverRequest = (options) => {
-    let files = undefined;
+    let files;
     if(options.files.length > 0) {
         files = { };
         for(let i = 0; i < options.files.length; i++) {
@@ -28,7 +28,7 @@ const driverRequest = (options) => {
             options.data = JSON.parse(options.data);
         }
     } catch(e) {
-        
+        /* continue regardless of error */
     }
     
     return new Promise((resolve, reject) => {
