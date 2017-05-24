@@ -8,6 +8,7 @@ engines:
 ratings:
    paths:
    - "*.js"
+   - "src/**.js"
 exclude_paths:
 - "docs/"
 - "node_modules/"
