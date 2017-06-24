@@ -204,7 +204,7 @@ class Nekocurl {
     /**
      * Sends the request.
      *
-     * @param     {boolean}   [resolveWithFullResponse=false]         Determines if you get the full response or just the body.
+     * @param     {boolean}   [resolveWithFullResponse=false]         Determines if you get the full response or just the body (or if HEAD request the headers).
      * @returns   {Promise<string|object>}
      */
     async send(resolveWithFullResponse) {
@@ -214,7 +214,7 @@ class Nekocurl {
         }
 
         if(options.headers['user-agent'] === undefined) {
-            this.setHeader('User-Agent', 'Nekocurl v'+Nekocurl.version+' '+options.driver+' (https://github.com/CharlotteDunois/node-nekocurl)');
+            this.setHeader('User-Agent', Nekocurl.defaultUseragent);
         }
 
         if(options.json === true && options.headers['content-type'] !== 'application/json') {
@@ -239,7 +239,11 @@ class Nekocurl {
         if(!!resolveWithFullResponse === true) {
             return response;
         }
-
+        
+        if(options.method === 'HEAD') {
+            return response.headers;
+        }
+        
         return response.body;
     }
 
@@ -256,7 +260,7 @@ class Nekocurl {
         }
 
         if(options.headers['user-agent'] === undefined) {
-            this.setHeader('User-Agent', 'Nekocurl v'+Nekocurl.version+' '+options.driver+' (https://github.com/CharlotteDunois/node-nekocurl)');
+            this.setHeader('User-Agent', Nekocurl.defaultUseragent);
         }
 
         if(options.json === true && options.headers['content-type'] !== 'application/json') {
@@ -297,7 +301,7 @@ class Nekocurl {
  * @description  Each key of an property is the name (or key) of the HTTP-Header, while the property value is the HTTP-Header value.
  */
 
-const { NEKOCURL_DEFAULT_DRIVER } = process.env;
+const { NEKOCURL_DEFAULT_DRIVER, NEKOCURL_DEFAULT_USERAGENT } = process.env;
 const fs = require('fs');
 const path = require('path');
 
@@ -311,6 +315,11 @@ Nekocurl.availableDrivers = new Map();
  * Nekocurl's default driver, if not overwritten instance-specific. Use environment variable 'NEKOCURL_DEFAULT_DRIVER' to overwrite the library's default driver (if available).
  */
 Nekocurl.defaultDriver = '';
+
+/**
+ * Use environment variable 'NEKOCURL_DEFAULT_USERAGENT' to overwrite the library's default useragent. Or overwrite this variable, if you think that's a good idea.
+*/
+Nekocurl.defaultUseragent = (NEKOCURL_DEFAULT_USERAGENT ? NEKOCURL_DEFAULT_USERAGENT : 'Nekocurl v'+Nekocurl.version+' '+options.driver+' (https://github.com/CharlotteDunois/node-nekocurl)');
 
 /**
  * Nekocurl version.
