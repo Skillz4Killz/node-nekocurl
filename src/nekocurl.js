@@ -214,7 +214,7 @@ class Nekocurl {
         }
 
         if(options.headers['user-agent'] === undefined) {
-            this.setHeader('User-Agent', Nekocurl.defaultUseragent);
+            this.setHeader('User-Agent', (Nekocurl.defaultUseragent ? Nekocurl.defaultUseragent : 'Nekocurl v'+Nekocurl.version+' '+options.driver+' (https://github.com/CharlotteDunois/node-nekocurl)'));
         }
 
         if(options.json === true && options.headers['content-type'] !== 'application/json') {
@@ -260,7 +260,7 @@ class Nekocurl {
         }
 
         if(options.headers['user-agent'] === undefined) {
-            this.setHeader('User-Agent', Nekocurl.defaultUseragent);
+            this.setHeader('User-Agent', (Nekocurl.defaultUseragent ? Nekocurl.defaultUseragent : 'Nekocurl v'+Nekocurl.version+' '+options.driver+' (https://github.com/CharlotteDunois/node-nekocurl)'));
         }
 
         if(options.json === true && options.headers['content-type'] !== 'application/json') {
@@ -317,9 +317,9 @@ Nekocurl.availableDrivers = new Map();
 Nekocurl.defaultDriver = '';
 
 /**
- * Use environment variable 'NEKOCURL_DEFAULT_USERAGENT' to overwrite the library's default useragent. Or overwrite this variable, if you think that's a good idea.
+ * Use environment variable 'NEKOCURL_DEFAULT_USERAGENT' to overwrite the library's default useragent.
 */
-Nekocurl.defaultUseragent = (NEKOCURL_DEFAULT_USERAGENT ? NEKOCURL_DEFAULT_USERAGENT : 'Nekocurl v'+Nekocurl.version+' '+options.driver+' (https://github.com/CharlotteDunois/node-nekocurl)');
+Nekocurl.defaultUseragent = (NEKOCURL_DEFAULT_USERAGENT ? NEKOCURL_DEFAULT_USERAGENT : null);
 
 /**
  * Nekocurl version.
