@@ -42,4 +42,7 @@ const driverRequest = (options) => {
     });
 };
 
-module.exports = driverRequest;
+module.exports = {
+    multiple: false,
+    driver: driverRequest
+};

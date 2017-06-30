@@ -19,4 +19,7 @@ const driverSnekfetch = (options) => {
     return request;
 };
 
-module.exports = driverSnekfetch;
+module.exports = {
+    multiple: false,
+    driver: driverSnekfetch
+};
