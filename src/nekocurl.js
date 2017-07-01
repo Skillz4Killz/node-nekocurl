@@ -364,7 +364,7 @@ const drivers = fs.readdirSync(path.join(__dirname, 'drivers'));
 for(let drivername of drivers) {
     if(drivername.endsWith('.driver.js')) {
         try {
-            const drv = require(path.join(__dirname, 'drivers', drivername));
+            const drv = require(path.join(__dirname, 'drivers', drivername)); // eslint-disable-line global-require
             NekocurlAvailableDrivers.set(drivername.substr(0, (drivername.length - 10)), drv);
         } catch(error) {
             /* continue regardless of error */
