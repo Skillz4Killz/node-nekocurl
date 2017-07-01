@@ -31,7 +31,7 @@ const NekocurlDefaultUseragent = (NEKOCURL_DEFAULT_USERAGENT ? NEKOCURL_DEFAULT_
 */
 
 class Nekocurl {
-    constructor(url, options = { }) {
+    constructor(url, options = { }) { // eslint-disable-line complexity
         if(!Nekocurl.defaultDriver) {
             throw new Error('Nekocurl: No drivers available');
         }
@@ -266,7 +266,7 @@ class Nekocurl {
      * @param     {boolean}   [resolveWithFullResponse=false]         Determines if you get the full response or just the body (or if HEAD request the headers).
      * @returns   {Promise<string|object>}
      */
-    async send(resolveWithFullResponse) {
+    async send(resolveWithFullResponse) { // eslint-disable-line complexity
         const options = this._options;
         if(!options.url) {
             throw new Error('Nekocurl: No url specified');
@@ -312,7 +312,7 @@ class Nekocurl {
      * @returns   {Promise<object>}
      * @throws    {Error}
      */
-    sendPassthrough() {
+    sendPassthrough() { // eslint-disable-line complexity
         const options = this._options;
         if(!options.url) {
             throw new Error('Nekocurl: No url specified');
