@@ -8,7 +8,7 @@
 const mimetypes = require('mime-types');
 const request = require('request');
 
-const driverRequest = (options) => {
+const driverRequest = (options, driverOptions) => {
     let files;
     if(options.files.length > 0) {
         files = { };
@@ -31,8 +31,12 @@ const driverRequest = (options) => {
         /* continue regardless of error */
     }
     
+    if(!driverOptions || !(driverOptions instanceof Object)) {
+        driverOptions = { };
+    }
+    
     return new Promise((resolve, reject) => {
-        request({ uri: options.url, method: options.method, headers: options.headers, form: files, body: (options.data ? options.data : undefined), json: options.json, encoding: options.encoding }, (err, res, body) => {
+        request(Object.assign({ uri: options.url, method: options.method, headers: options.headers, form: files, body: (options.data ? options.data : undefined), json: options.json }, driverOptions), (err, res, body) => {
             if(err) {
                 return reject(err);
             }

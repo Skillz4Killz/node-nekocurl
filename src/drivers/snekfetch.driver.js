@@ -7,8 +7,12 @@
 
 const Snekfetch = require('snekfetch');
 
-const driverSnekfetch = (options) => {
-    const request = new Snekfetch(options.method, options.url, { headers: options.headers, data: options.data });
+const driverSnekfetch = (options, driverOptions) => {
+    if(!driverOptions || !(driverOptions instanceof Object)) {
+        driverOptions = { };
+    }
+
+    const request = new Snekfetch(options.method, options.url, Object.assign({ headers: options.headers, data: options.data }, driverOptions));
     
     if(options.files.length > 0) {
         for(let i = 0; i < options.files.length; i++) {

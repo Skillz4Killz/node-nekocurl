@@ -19,16 +19,16 @@ const NekocurlDefaultUseragent = (NEKOCURL_DEFAULT_USERAGENT ? NEKOCURL_DEFAULT_
  * @param     {string}                url                         The url, what else?
  * @param     {object}                [options={ }]               Any options you want to pass.
  * @param     {string}                options.driver              The driver which should be used.
+ * @param     {object}                options.driverOptions       Options to be passed to the driver (and the underlying structure).
  * @param     {string}                [options.method='GET']      The request method.
  * @param     {HeadersOptions}        [options.headers={ }]       HTTP-Headers.
  * @param     {string|null}           [options.data=null]         The request payload.
  * @param     {Array<FileOptions>}    [options.files=[ ]]         Files you wanna send.
  * @param     {boolean}               [options.autoString=true]   Automatically turn buffers into strings.
- * @param     {string|null}           options.encoding            Encoding (only used by some drivers, e.g. request).
  * @param     {boolean}               [options.json=false]        Set true, if payload is JSON and/or Nekocurl should automatically parse response JSON (Snekfetch does it depending on Content-Type).
  * @returns   {Nekocurl}
  * @throws    {Error}
-*/
+ */
 
 class Nekocurl {
     constructor(url, options = { }) { // eslint-disable-line complexity
@@ -37,6 +37,8 @@ class Nekocurl {
         }
         
         this._options = { };
+        this._driverOptions = null;
+        
         if(url) {
             this.setURL(url);
         }
@@ -47,11 +49,13 @@ class Nekocurl {
         this._options.data = null;
         this._options.files = [ ];
         this._options.autoString = (options.autoString !== undefined ? !!options.autoString : true);
-        this._options.encoding = (options.encoding !== undefined ? options.encoding : undefined);
         this._options.json = !!options.json;
         
         if(options.driver) {
             this.setDriver(options.driver);
+        }
+        if(options.driverOptions) {
+            this.setDriverOptions(options.driverOptions);
         }
         if(options.method) {
             this.setMethod(options.method);
@@ -137,6 +141,17 @@ class Nekocurl {
         }
         
         throw new Error('Nekocurl: Cannot find specified driver "'+driver+'"');
+    }
+    
+    /**
+     * Sets driver options.
+     *
+     * @param     {object}    opts      The driver options to pass.
+     * @returns   {this}
+     */
+    setDriverOptions(opts) {
+        this._driverOptions = opts;
+        return this;
     }
     
     /**
@@ -280,7 +295,7 @@ class Nekocurl {
             this.setHeader('Content-Type', 'application/json');
         }
 
-        const request = this.getDriver().driver(options);
+        const request = this.getDriver().driver(options, this._driverOptions);
         const response = await request;
 
         if(options.autoString === true && response.body instanceof Buffer) {
