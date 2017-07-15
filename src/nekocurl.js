@@ -8,7 +8,7 @@ const path = require('path');
 const { version } = require(path.join(__dirname, '..', 'package.json'));
 
 const NekocurlAvailableDrivers = new Map();
-let   NekocurlDefaultDriver    = '';
+let NekocurlDefaultDriver = '';
 const NekocurlDefaultUseragent = (NEKOCURL_DEFAULT_USERAGENT ? NEKOCURL_DEFAULT_USERAGENT : null);
 
 /**
@@ -77,7 +77,7 @@ class Nekocurl {
      * @returns   {Map}
      */
     static get availableDrivers() {
-       return NekocurlAvailableDrivers;
+        return NekocurlAvailableDrivers;
     }
 
     /**

@@ -9,17 +9,20 @@ const mimetypes = require('mime-types');
 const request = require('request');
 
 const driverRequest = (options, driverOptions) => {
-    let files;
+    let files = null;
     if(options.files.length > 0) {
         files = { };
         for(let i = 0; i < options.files.length; i++) {
             files[options.files[i].name] = {
-                value: options.files[i].data,
-                options: {
+                value: options.files[i].data
+            };
+            
+            if(options.files[i].filename) {
+                files[options.files[i].name].options = {
                     filename: options.files[i].filename,
                     contentType: mimetypes.contentType(options.files[i].filename)
-                }
-            };
+                };
+            }
         }
     }
     
@@ -36,12 +39,12 @@ const driverRequest = (options, driverOptions) => {
     }
     
     return new Promise((resolve, reject) => {
-        request(Object.assign({ uri: options.url, method: options.method, headers: options.headers, form: files, body: (options.data ? options.data : undefined), json: options.json }, driverOptions), (err, res, body) => {
+        request(Object.assign({ uri: options.url, method: options.method, headers: options.headers, form: (files ? files : undefined), body: (options.data ? options.data : undefined), json: options.json }, driverOptions), (err, res) => {
             if(err) {
                 return reject(err);
             }
             
-            resolve(res);
+            return resolve(res);
         });
     });
 };
