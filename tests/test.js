@@ -55,8 +55,8 @@ describe('Nekocurl general testing', () => {
 describe('Nekocurl testing with snekfetch', () => {
     describe('Simple HEAD', () => {
         it('should return true if returned method is HEAD and contains user-agent header', () => {
-            return (new Nekocurl('https://httpbin.org/anything', { method: 'HEAD', json: true })).setDriver('snekfetch').setHeader('User-Agent', 'Nekocurl HEAD-Test').send(true).then((req) => {
-                assert.deepStrictEqual({ method: 'HEAD', headers: { 'User-Agent': 'Nekocurl HEAD-Test' } }, { method: req.body.method, headers: { 'User-Agent': req.body.headers['User-Agent'] } });
+            return (new Nekocurl('https://httpbin.org/anything', { method: 'HEAD', json: true })).setDriver('snekfetch').setHeader('User-Agent', 'Nekocurl HEAD-Test').send().then((req) => {
+                assert.deepStrictEqual({ method: 'HEAD', headers: { 'User-Agent': 'Nekocurl HEAD-Test' } }, { method: req.method, headers: { 'User-Agent': req.headers['User-Agent'] } });
                 return undefined;
             });
         });
