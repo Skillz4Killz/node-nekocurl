@@ -225,7 +225,7 @@ class Nekocurl {
     /**
      * Set the request payload.
      *
-     * @param     {string}    data        The request paylaod.
+     * @param     {string}    data        The request payload.
      * @returns   {this}
      * @throws    {Error}
      */

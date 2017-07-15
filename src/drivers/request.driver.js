@@ -13,18 +13,29 @@ function makeFilesObject(files) {
         return undefined;
     }
 
-    const obj = { };
+    const obj = { form: { }, formData: { } };
     for(let i = 0; i < files.length; i++) {
-        obj[files[i].name] = {
-            value: files[i].data
-        };
-        
         if(files[i].filename) {
-            obj[files[i].name].options = {
-                filename: files[i].filename,
-                contentType: mimetypes.contentType(files[i].filename)
+            obj.formData[files[i].name] = {
+                value: files[i].data,
+                options: {
+                    filename: files[i].filename,
+                    contentType: mimetypes.contentType(files[i].filename)
+                }
+            };
+        } else {
+            obj.form[files[i].name] = {
+                value: files[i].data
             };
         }
+    }
+    
+    if(Object.keys(obj.form).length === 0) {
+        obj.form = undefined;
+    }
+    
+    if(Object.keys(obj.formData).length === 0) {
+        obj.formData = undefined;
     }
     
     return obj;
@@ -44,7 +55,7 @@ const driverRequest = (options, driverOptions) => {
     }
     
     return new Promise((resolve, reject) => {
-        request(Object.assign({ uri: options.url, method: options.method, headers: options.headers, form: makeFilesObject(options.files), body: (options.data ? options.data : undefined), json: options.json }, driverOptions), (err, res) => {
+        request(Object.assign({ uri: options.url, method: options.method, headers: options.headers, body: (options.data ? options.data : undefined), json: options.json }, makeFilesObject(options.files), driverOptions), (err, res) => {
             if(err) {
                 return reject(err);
             }
