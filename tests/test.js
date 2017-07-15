@@ -108,8 +108,8 @@ describe('Nekocurl testing with snekfetch', () => {
         });
     });
     
-    describe('GET to POST endpoint', () => {
-        it('should throw 405 Method Not Allowed error', () => {
+    describe('Make driver throw error', () => {
+        it('should throw 405 Method Not Allowed error (GET to POST endpoint request)', () => {
             return (new Nekocurl('https://httpbin.org/post', { json: true })).setDriver('snekfetch').send(true).catch((req) => Promise.resolve(req)).then((req) => {
                 assert.strictEqual(405, req.status);
                 return undefined;
@@ -174,11 +174,12 @@ describe('Nekocurl testing with request', () => {
         });
     });
     
-    describe('GET to POST endpoint', () => {
-        it('should throw 405 Method Not Allowed error', () => {
-            return (new Nekocurl('https://httpbin.org/post', { json: true })).setDriver('request').send(true).catch((req) => Promise.resolve(req)).then((req) => {
-                assert.strictEqual(405, req.statusCode);
-                return undefined;
+    describe('Make driver throw error', () => {
+        it('should throw error (invalid url passed as driver option)', () => {
+            return (new Nekocurl('https://httpbin.org/post', { json: true })).setDriver('request').setDriverOptions({ uri: 'nekocurl' }).send(true).catch((req) => Promise.resolve(req)).then((error) => {
+                assert.throws(() => {
+                    throw error;
+                }, Error);
             });
         });
     });
