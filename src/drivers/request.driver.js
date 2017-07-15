@@ -19,7 +19,7 @@ function makeFilesObject(files) {
             value: files[i].data
         };
         
-        if(obj[i].filename) {
+        if(files[i].filename) {
             obj[files[i].name].options = {
                 filename: files[i].filename,
                 contentType: mimetypes.contentType(files[i].filename)
