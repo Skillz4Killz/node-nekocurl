@@ -14,10 +14,8 @@ const driverSnekfetch = (options, driverOptions) => {
 
     const request = new Snekfetch(options.method, options.url, Object.assign({ headers: options.headers, data: options.data }, driverOptions));
     
-    if(options.files.length > 0) {
-        for(let i = 0; i < options.files.length; i++) {
-            request.attach(options.files[i].name, options.files[i].data, options.files[i].filename);
-        }
+    for(let i = 0; i < options.files.length; i++) {
+        request.attach(options.files[i].name, options.files[i].data, options.files[i].filename);
     }
     
     return request;

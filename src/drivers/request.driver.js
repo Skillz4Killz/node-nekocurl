@@ -9,25 +9,25 @@ const mimetypes = require('mime-types');
 const request = require('request');
 
 function makeFilesObject(files) {
-    if(files.length > 0) {
-        const files = { };
-        for(let i = 0; i < files.length; i++) {
-            files[files[i].name] = {
-                value: files[i].data
-            };
-            
-            if(files[i].filename) {
-                files[files[i].name].options = {
-                    filename: files[i].filename,
-                    contentType: mimetypes.contentType(files[i].filename)
-                };
-            }
-        }
+    if(files.length === 0) {
+        return undefined;
+    }
+
+    const obj = { };
+    for(let i = 0; i < files.length; i++) {
+        obj[files[i].name] = {
+            value: files[i].data
+        };
         
-        return files;
+        if(obj[i].filename) {
+            obj[files[i].name].options = {
+                filename: files[i].filename,
+                contentType: mimetypes.contentType(files[i].filename)
+            };
+        }
     }
     
-    return undefined;
+    return obj;
 }
 
 const driverRequest = (options, driverOptions) => {
