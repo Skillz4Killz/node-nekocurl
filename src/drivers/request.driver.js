@@ -63,7 +63,6 @@ const driverRequest = (options, driverOptions) => {
     return new Promise((resolve, reject) => {
         request(Object.assign({ uri: options.url, method: options.method, headers: options.headers, body: (options.data ? options.data : undefined), json: options.json }, makeFilesObject(options.files), driverOptions), (err, res) => {
             if(err) {
-                err.status = err.statusCode;
                 return reject(err);
             }
             
