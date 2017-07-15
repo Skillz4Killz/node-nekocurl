@@ -123,7 +123,7 @@ class Nekocurl {
      * @param     {string}    driver      The driver to test for existence
      * @returns   {bool}
      */
-    hasDriver(driver) {
+    static hasDriver(driver) {
         return Nekocurl.availableDrivers.has(driver);
     }
     
