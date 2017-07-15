@@ -53,7 +53,7 @@ describe('Nekocurl general testing', () => {
 });
 
 describe('Nekocurl testing with snekfetch', () => {
-    describe('Simple get with params', () => {
+    describe('Simple GET with params', () => {
         it('should return true if returned args are equal to passed GET params', () => {
             const params = { But: 'will it blend?', Nekocurl: 'is amazing' };
             return (new Nekocurl('https://httpbin.org/get?'+querystring.stringify(params), { json: true })).setDriver('snekfetch').send().then((json) => {
@@ -63,7 +63,7 @@ describe('Nekocurl testing with snekfetch', () => {
         });
     });
     
-    describe('Simple get with headers', () => {
+    describe('Simple GET with headers', () => {
         it('should return true if returned headers are equal to specified ones', () => {
             const headers = { 'Accept': 'application/json', 'Accept-Encoding': 'gzip, deflate', 'Connection': 'close', 'Content-Type': 'application/json', 'Host': 'httpbin.org', 'User-Agent': 'Nekocurl Unit-Testing', 'X-Userlimit': '500' };
             return (new Nekocurl('https://httpbin.org/headers', { json: true })).setDriver('snekfetch').setHeader('Accept', 'application/json').setHeaders(headers).send().then((json) => {
@@ -73,7 +73,7 @@ describe('Nekocurl testing with snekfetch', () => {
         });
     });
     
-    describe('Simple post', () => {
+    describe('Simple POST', () => {
         it('should return true if returned post params are equal to specified ones', () => {
             const params = [{ test: 'hahaha' }];
             return (new Nekocurl('https://httpbin.org/post', { json: true })).setDriver('snekfetch').setMethod('POST').attachFile(Object.keys(params[0])[0], params[0][Object.keys(params[0])[0]]).send().then((json) => {
@@ -83,7 +83,7 @@ describe('Nekocurl testing with snekfetch', () => {
         });
     });
     
-    describe('JSON post', () => {
+    describe('JSON POST', () => {
         it('should return true if returned json data is equal to specified data', () => {
             const data = { test: 'is this a joke' };
             return (new Nekocurl('https://httpbin.org/post', { json: true })).setDriver('snekfetch').setMethod('POST').setData(JSON.stringify(data)).send().then((json) => {
@@ -107,10 +107,19 @@ describe('Nekocurl testing with snekfetch', () => {
             });
         });
     });
+    
+    describe('GET to POST endpoint', () => {
+        it('should throw 403 Forbidden error', () => {
+            return (new Nekocurl('https://httpbin.org/post', { json: true })).setDriver('snekfetch').send(true).catch((req) => Promise.resolve(req)).then((req) => {
+                assert.deepStrictEqual(403, req.status);
+                return undefined;
+            });
+        });
+    });
 });
 
 describe('Nekocurl testing with request', () => {
-    describe('Simple get with params', () => {
+    describe('Simple GET with params', () => {
         it('should return true if returned args are equal to passed GET params', () => {
             const params = { But: 'will it blend?', Nekocurl: 'is amazing' };
             return (new Nekocurl('https://httpbin.org/get?'+querystring.stringify(params), { json: true })).setDriver('snekfetch').send().then((json) => {
@@ -120,7 +129,7 @@ describe('Nekocurl testing with request', () => {
         });
     });
     
-    describe('Simple get with headers', () => {
+    describe('Simple GET with headers', () => {
         it('should return true if returned headers are equal to specified ones', () => {
             const headers = { 'Accept': 'application/json', 'Accept-Encoding': 'gzip, deflate', 'Connection': 'close', 'Content-Type': 'application/json', 'Host': 'httpbin.org', 'User-Agent': 'Nekocurl Unit-Testing', 'X-Userlimit': '500' };
             return (new Nekocurl('https://httpbin.org/headers', { headers: headers, json: true })).setDriver('request').setHeader('Accept', 'application/json').send().then((json) => {
@@ -130,7 +139,7 @@ describe('Nekocurl testing with request', () => {
         });
     });
     
-    describe('Simple post', () => {
+    describe('Simple POST', () => {
         it('should return true if returned post params are equal to specified ones', () => {
             const params = [{ name: 'test', data: 'hahaha' }];
             return (new Nekocurl('https://httpbin.org/post', { json: true })).setDriver('request').setMethod('POST').attachFile(params[0].name, params[0].data).send().then((json) => {
@@ -140,7 +149,7 @@ describe('Nekocurl testing with request', () => {
         });
     });
     
-    describe('JSON post', () => {
+    describe('JSON POST', () => {
         it('should return true if returned json data is equal to specified data', () => {
             const data = { test: 'is this a joke' };
             return (new Nekocurl('https://httpbin.org/post', { json: true })).setDriver('request').setMethod('POST').setData(JSON.stringify(data)).send().then((json) => {
@@ -160,6 +169,15 @@ describe('Nekocurl testing with request', () => {
             
             return await (new Nekocurl('https://httpbin.org/post', { autoString: false, files: files, json: true })).setDriver('request').setMethod('POST').send().then((json) => {
                 assert.deepStrictEqual(assertion, json.files);
+                return undefined;
+            });
+        });
+    });
+    
+    describe('GET to POST endpoint', () => {
+        it('should throw 403 Forbidden error', () => {
+            return (new Nekocurl('https://httpbin.org/post', { json: true })).setDriver('request').send(true).catch((req) => Promise.resolve(req)).then((req) => {
+                assert.deepStrictEqual(403, req.status);
                 return undefined;
             });
         });
