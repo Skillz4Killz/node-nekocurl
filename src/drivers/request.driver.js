@@ -8,6 +8,24 @@
 const mimetypes = require('mime-types');
 const request = require('request');
 
+function makeFile(obj, file) {
+    if(file.filename) {
+        obj.formData[file.name] = {
+            value: file.data,
+            options: {
+                filename: file.filename,
+                contentType: mimetypes.contentType(file.filename)
+            }
+        };
+    } else {
+        obj.form[file.name] = {
+            value: file.data
+        };
+    }
+    
+    return undefined;
+}
+
 function makeFilesObject(files) {
     if(files.length === 0) {
         return undefined;
@@ -15,19 +33,7 @@ function makeFilesObject(files) {
 
     const obj = { form: { }, formData: { } };
     for(let i = 0; i < files.length; i++) {
-        if(files[i].filename) {
-            obj.formData[files[i].name] = {
-                value: files[i].data,
-                options: {
-                    filename: files[i].filename,
-                    contentType: mimetypes.contentType(files[i].filename)
-                }
-            };
-        } else {
-            obj.form[files[i].name] = {
-                value: files[i].data
-            };
-        }
+        makeFile(obj, files[i]);
     }
     
     if(Object.keys(obj.form).length === 0) {
