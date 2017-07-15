@@ -109,9 +109,9 @@ describe('Nekocurl testing with snekfetch', () => {
     });
     
     describe('GET to POST endpoint', () => {
-        it('should throw 403 Forbidden error', () => {
+        it('should throw 405 Method Not Allowed error', () => {
             return (new Nekocurl('https://httpbin.org/post', { json: true })).setDriver('snekfetch').send(true).catch((req) => Promise.resolve(req)).then((req) => {
-                assert.deepStrictEqual(403, req.status);
+                assert.strictEqual(405, req.status);
                 return undefined;
             });
         });
@@ -175,9 +175,9 @@ describe('Nekocurl testing with request', () => {
     });
     
     describe('GET to POST endpoint', () => {
-        it('should throw 403 Forbidden error', () => {
+        it('should throw 405 Method Not Allowed error', () => {
             return (new Nekocurl('https://httpbin.org/post', { json: true })).setDriver('request').send(true).catch((req) => Promise.resolve(req)).then((req) => {
-                assert.deepStrictEqual(403, req.status);
+                assert.strictEqual(405, req.statusCode);
                 return undefined;
             });
         });
