@@ -283,21 +283,9 @@ class Nekocurl {
      */
     async send(resolveWithFullResponse) { // eslint-disable-line complexity
         const options = this._options;
-        if(!options.url) {
-            throw new Error('Nekocurl: No url specified');
-        }
-
-        if(options.headers['user-agent'] === undefined) {
-            this.setHeader('User-Agent', (Nekocurl.defaultUseragent ? Nekocurl.defaultUseragent : 'Nekocurl v'+Nekocurl.version+' '+options.driver+' (https://github.com/CharlotteDunois/node-nekocurl)'));
-        }
-
-        if(options.json === true && options.headers['content-type'] !== 'application/json') {
-            this.setHeader('Content-Type', 'application/json');
-        }
-
-        const request = this.getDriver().driver(options, this._driverOptions);
+        const request = this.sendPassthrough();
         const response = await request;
-
+        
         if(options.autoString === true && response.body instanceof Buffer) {
             response.body = response.body.toString();
         }
@@ -341,7 +329,7 @@ class Nekocurl {
             this.setHeader('Content-Type', 'application/json');
         }
 
-        return this.getDriver().driver(options);
+        return this.getDriver().driver(options, this._driverOptions);
     }
     
     /**
