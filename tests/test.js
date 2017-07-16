@@ -55,7 +55,7 @@ describe('Nekocurl general testing', () => {
 describe('Nekocurl testing with snekfetch', () => {
     describe('Simple HEAD', () => {
         it('should return true if returned method is HEAD and contains user-agent header', () => {
-            return (new Nekocurl('https://curl.neko.run/testHEAD.php', { method: 'HEAD', json: true })).setDriver('snekfetch').send().then((req) => {
+            return (new Nekocurl('https://curl.neko.run/testHEAD.php', { method: 'HEAD', json: true })).setDriver('snekfetch').setHeader('User-Agent', 'Neko.run HEAD-Test').send().then((req) => {
                 assert.deepStrictEqual('HEAD', req['x-request-method']);
                 return undefined;
             });
@@ -130,7 +130,7 @@ describe('Nekocurl testing with snekfetch', () => {
 describe('Nekocurl testing with request', () => {
     describe('Simple HEAD', () => {
         it('should return true if returned method is HEAD and contains user-agent header', () => {
-            return (new Nekocurl('https://curl.neko.run/testHEAD.php', { method: 'HEAD', json: true })).setDriver('request').send().then((req) => {
+            return (new Nekocurl('https://curl.neko.run/testHEAD.php', { method: 'HEAD', json: true })).setDriver('request').setHeader('User-Agent', 'Neko.run HEAD-Test').send().then((req) => {
                 assert.deepStrictEqual('HEAD', req['x-request-method']);
                 return undefined;
             });
