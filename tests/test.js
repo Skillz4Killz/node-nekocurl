@@ -50,13 +50,77 @@ describe('Nekocurl general testing', () => {
             }, Error);
         });
     });
+    
+    describe('Passing invalid driver to Nekocurl', () => {
+        it('should throw', () => {
+            assert.throws(() => {
+                const nk = (new Nekocurl()).setDriver('curl'); // eslint-disable-line no-unused-vars
+            }, Error);
+        });
+    });
+    
+    describe('Passing invalid method to Nekocurl', () => {
+        it('should throw', () => {
+            assert.throws(() => {
+                const nk = (new Nekocurl()).setMethod(5); // eslint-disable-line no-unused-vars
+            }, Error);
+        });
+    });
+    
+    describe('Passing invalid header to Nekocurl', () => {
+        it('should throw', () => {
+            assert.throws(() => {
+                const nk = (new Nekocurl()).setHeader(); // eslint-disable-line no-unused-vars
+            }, Error);
+        });
+    });
+    
+    describe('Passing invalid headers to Nekocurl', () => {
+        it('should throw', () => {
+            assert.throws(() => {
+                const nk = (new Nekocurl()).setHeaders(); // eslint-disable-line no-unused-vars
+            }, Error);
+        });
+    });
+    
+    describe('Passing an object of invalid headers to Nekocurl', () => {
+        it('should throw', () => {
+            assert.throws(() => {
+                const nk = (new Nekocurl()).setHeaders({ test: undefined }); // eslint-disable-line no-unused-vars
+            }, Error);
+        });
+    });
+    
+    describe('Passing invalid data to Nekocurl', () => {
+        it('should throw', () => {
+            assert.throws(() => {
+                const nk = (new Nekocurl()).setData({ }); // eslint-disable-line no-unused-vars
+            }, Error);
+        });
+    });
+    
+    describe('Passing invalid file to Nekocurl', () => {
+        it('should throw', () => {
+            assert.throws(() => {
+                const nk = (new Nekocurl()).attachFile(); // eslint-disable-line no-unused-vars
+            }, Error);
+        });
+    });
+    
+    describe('Passing invalid files to Nekocurl', () => {
+        it('should throw', () => {
+            assert.throws(() => {
+                const nk = (new Nekocurl()).attachFiles(); // eslint-disable-line no-unused-vars
+            }, Error);
+        });
+    });
 });
 
 describe('Nekocurl testing with snekfetch', () => {
     describe('Simple HEAD', () => {
-        it('should return true if returned method is HEAD and contains user-agent header', () => {
-            return (new Nekocurl('https://curl.neko.run/testHEAD.php', { method: 'HEAD', json: true })).setDriver('snekfetch').setHeader('User-Agent', 'Neko.run HEAD-Test').send().then((req) => {
-                assert.deepStrictEqual('HEAD', req['x-request-method']);
+        it('should return true if returned method is HEAD', () => {
+            return (new Nekocurl('https://curl.neko.run/testHEAD.php', { method: 'HEAD', json: true })).setDriver('snekfetch').setHeader('User-Agent', 'Neko.run HEAD test').send(true).then((req) => {
+                assert.deepStrictEqual('HEAD', req.headers['x-request-method']);
                 return undefined;
             });
         });
@@ -129,9 +193,9 @@ describe('Nekocurl testing with snekfetch', () => {
 
 describe('Nekocurl testing with request', () => {
     describe('Simple HEAD', () => {
-        it('should return true if returned method is HEAD and contains user-agent header', () => {
-            return (new Nekocurl('https://curl.neko.run/testHEAD.php', { method: 'HEAD', json: true })).setDriver('request').setHeader('User-Agent', 'Neko.run HEAD-Test').send().then((req) => {
-                assert.deepStrictEqual('HEAD', req['x-request-method']);
+        it('should return true if returned method is HEAD', () => {
+            return (new Nekocurl('https://curl.neko.run/testHEAD.php', { method: 'HEAD', json: true })).setDriver('request').setHeader('User-Agent', 'Neko.run HEAD test').send(true).then((req) => {
+                assert.deepStrictEqual('HEAD', req.headers['x-request-method']);
                 return undefined;
             });
         });
@@ -170,7 +234,7 @@ describe('Nekocurl testing with request', () => {
     describe('JSON POST', () => {
         it('should return true if returned json data is equal to specified data', () => {
             const data = { test: 'is this a joke' };
-            return (new Nekocurl('https://httpbin.org/post', { json: true })).setDriver('request').setMethod('POST').setData(JSON.stringify(data)).send().then((json) => {
+            return (new Nekocurl('https://httpbin.org/post', { data: JSON.stringify(data), json: true })).setDriver('request').setMethod('POST').send().then((json) => {
                 assert.deepStrictEqual(data, json.json);
                 return undefined;
             });
@@ -193,11 +257,10 @@ describe('Nekocurl testing with request', () => {
     });
     
     describe('Make driver throw error', () => {
-        it('should throw error (invalid url passed as driver option)', () => {
-            return (new Nekocurl('https://httpbin.org/post', { json: true })).setDriver('request').setDriverOptions({ uri: 'nekocurl' }).send(true).catch((req) => Promise.resolve(req)).then((error) => {
-                assert.throws(() => {
-                    throw error;
-                }, Error);
+        it('should throw 405 Method Not Allowed error (GET to POST endpoint request)', () => {
+            return (new Nekocurl('https://httpbin.org/post', { json: true })).setDriver('request').send(true).catch((req) => Promise.resolve(req)).then((req) => {
+                assert.strictEqual(405, req.status);
+                return undefined;
             });
         });
     });

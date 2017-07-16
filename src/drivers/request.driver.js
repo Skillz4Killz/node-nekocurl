@@ -60,6 +60,8 @@ const driverRequest = (options, driverOptions) => {
         driverOptions = { };
     }
     
+    const error = new Error();
+    
     return new Promise((resolve, reject) => {
         request(Object.assign({ uri: options.url, method: options.method, headers: options.headers, body: (options.data ? options.data : undefined), json: options.json }, makeFilesObject(options.files), driverOptions), (err, res) => {
             if(err) {
@@ -67,6 +69,15 @@ const driverRequest = (options, driverOptions) => {
             }
             
             res.status = res.statusCode;
+            if(res.status >= 400) {
+                error.message = res.status+' '+res.statusMessage;
+                error.status = res.status;
+                error.statusText = res.statusMessage;
+                
+                error.request = res;
+                return reject(error);
+            }
+            
             return resolve(res);
         });
     });

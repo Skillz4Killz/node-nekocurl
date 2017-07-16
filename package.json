@@ -1,6 +1,6 @@
 {
   "name": "nekocurl",
-  "version": "0.4.9",
+  "version": "0.5.0",
   "description": "A HTTP client class that uses plug-in drivers to do HTTP requests. Default driver, if available, is snekfetch.",
   "repository": "github:CharlotteDunois/node-nekocurl",
   "author": "Charlotte Dunois",
