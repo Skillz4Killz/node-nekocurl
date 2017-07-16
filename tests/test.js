@@ -114,13 +114,23 @@ describe('Nekocurl general testing', () => {
             }, Error);
         });
     });
+    
+    describe('Passing no url to Nekocurl and trying to send', () => {
+        it('should throw', () => {
+            return (new Nekocurl()).send().catch((error) => {
+                assert.throws(() => {
+                    throw error;
+                }, Error);
+            });
+        });
+    });
 });
 
 describe('Nekocurl testing with snekfetch', () => {
     describe('Simple HEAD', () => {
         it('should return true if returned method is HEAD', () => {
-            return (new Nekocurl('https://curl.neko.run/testHEAD.php', { method: 'HEAD', json: true })).setDriver('snekfetch').setHeader('User-Agent', 'Neko.run HEAD test').send(true).then((req) => {
-                assert.deepStrictEqual('HEAD', req.headers['x-request-method']);
+            return (new Nekocurl('https://curl.neko.run/testHEAD.php', { method: 'HEAD', json: true })).setDriver('snekfetch').setHeader('User-Agent', 'Neko.run HEAD test').send().then((req) => {
+                assert.deepStrictEqual('HEAD', req['x-request-method']);
                 return undefined;
             });
         });
@@ -261,6 +271,16 @@ describe('Nekocurl testing with request', () => {
             return (new Nekocurl('https://httpbin.org/post', { json: true })).setDriver('request').send(true).catch((req) => Promise.resolve(req)).then((req) => {
                 assert.strictEqual(405, req.status);
                 return undefined;
+            });
+        });
+    });
+    
+    describe('Make driver throw driver error', () => {
+        it('should throw due to invalid url passed as driver option', () => {
+            return (new Nekocurl('', { json: true })).setDriver('request').setDriverOptions({ uri: 'nekocurl' }).send(true).catch((req) => {
+                assert.throws(() => {
+                    throw req;
+                }, Error);
             });
         });
     });
