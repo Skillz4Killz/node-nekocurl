@@ -277,7 +277,7 @@ describe('Nekocurl testing with request', () => {
     
     describe('Make driver throw driver error', () => {
         it('should throw due to invalid url passed as driver option', () => {
-            return (new Nekocurl('', { json: true })).setDriver('request').setDriverOptions({ uri: 'nekocurl' }).send(true).catch((req) => {
+            return (new Nekocurl('https://httpbin.org/get', { json: true })).setDriver('request').setDriverOptions({ uri: 'nekocurl' }).send(true).catch((req) => {
                 assert.throws(() => {
                     throw req;
                 }, Error);
