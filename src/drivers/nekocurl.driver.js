@@ -14,7 +14,7 @@ const URL = require('url');
 const util = require('util');
 const zlib = require('zlib');
 
-const FormData = require(path.join(__dirname, '..', 'FormData'));
+const FormData = require(path.join(__dirname, '..', 'formdata.js'));
 
 function attachFile(options, form, name, data, filename) {
     form.append(name, data, filename);
