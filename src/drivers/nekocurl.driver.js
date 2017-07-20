@@ -136,16 +136,11 @@ function applyRequestHandlers(rStream, request, options, driverOptions, Nekocurl
             return reject(Object.assign(error, res));
         });
     });
+    
+    return undefined;
 }
 
-function makeRequest(options, driverOptions, Nekocurl) { // eslint-disable-line complexity
-    const rStream = this; // eslint-disable-line no-invalid-this
-    Stream.Readable.call(rStream);
-    
-    if(!driverOptions || !(driverOptions instanceof Object)) {
-        driverOptions = { };
-    }
-    
+function applyOptionsToRequest(options) {
     if(options.files.length > 0) {
         const form = new FormData();
         options.headers['content-type'] = 'multipart/form-data; boundary='+form.boundary;
@@ -158,6 +153,19 @@ function makeRequest(options, driverOptions, Nekocurl) { // eslint-disable-line 
     if (options.method !== 'HEAD') {
         options.headers['accept-encoding'] = 'gzip, deflate';
     }
+    
+    return undefined;
+}
+
+function makeRequest(options, driverOptions, Nekocurl) { // eslint-disable-line complexity
+    const rStream = this; // eslint-disable-line no-invalid-this
+    Stream.Readable.call(rStream);
+    
+    if(!driverOptions || !(driverOptions instanceof Object)) {
+        driverOptions = { };
+    }
+    
+    applyOptionsToRequest(options);
     
     const url = URL.parse(options.url);
     url.method = options.method;
@@ -178,9 +186,9 @@ function makeRequest(options, driverOptions, Nekocurl) { // eslint-disable-line 
 
 util.inherits(makeRequest, Stream.Readable);
 
-const driverNekocurl = (...options) => {
+function driverNekocurl(...options) {
     return new makeRequest(...options);
-};
+}
 
 module.exports = {
     multiple: false,

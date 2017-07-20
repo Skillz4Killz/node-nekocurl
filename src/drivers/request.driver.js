@@ -47,7 +47,7 @@ function makeFilesObject(files) {
     return obj;
 }
 
-const driverRequest = (options, driverOptions) => {
+function driverRequest(options, driverOptions)  {
     try {
         if(options.json === true && typeof options.data === 'string' && options.data.length > 0) {
             options.data = JSON.parse(options.data);
@@ -81,7 +81,7 @@ const driverRequest = (options, driverOptions) => {
             return resolve(res);
         });
     });
-};
+}
 
 module.exports = {
     multiple: false,
