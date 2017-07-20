@@ -109,17 +109,20 @@ function makeRequest(options, driverOptions, Nekocurl) { // eslint-disable-line 
                 const concated = Buffer.concat(body);
                 
                 if(driverOptions.followRedirects !== false && [ 301, 302, 303, 307, 308 ].includes(response.statusCode)) {
+                    let method = options.method;
+                    let data = options.data;
+                    
                     if([ 301, 302 ].includes(response.statusCode)) {
                         if(options.method !== 'HEAD') {
-                            options.method = 'GET';
+                            method = 'GET';
                         }
                         
-                        options.data = null;
+                        data = null;
                     } else if(response.statusCode === 303) {
-                        options.method = 'GET';
+                        method = 'GET';
                     }
                     
-                    return resolve(driverNekocurl(Object.assign(options, { url: getNewURL(response) }), driverOptions, Nekocurl)); // eslint-disable-line no-use-before-define
+                    return resolve(driverNekocurl(Object.assign(options, { url: getNewURL(response), method: method, data: data }), driverOptions, Nekocurl)); // eslint-disable-line no-use-before-define
                 }
       
                 const res = {
