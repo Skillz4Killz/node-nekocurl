@@ -69,7 +69,7 @@ function makeRequest(options, driverOptions, Nekocurl) { // eslint-disable-line 
     url.headers = options.headers;
     
     const error = new Error();
-    const request = (options.protocol.replace(':', '') === 'https' ? https : http).request(url);
+    const request = (url.protocol.replace(':', '') === 'https' ? https : http).request(url);
     
     return new Promise((resolve, reject) => {
         const handleError = (err) => {
