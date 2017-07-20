@@ -184,7 +184,7 @@ describe('Nekocurl testing', function () {
         it('should return true if returned file data is equal to specified data', async () => {
             const image = await (new Nekocurl(undefined, { autoString: false, driver: 'nekocurl', method: 'GET' })).setURL('https://i.imgur.com/1sDDaC2.png').send();
             const files = [{ name: 'image', data: image, filename: 'image.png' }];
-            const assertion = { image: 'data:[object Object];base64,'+image.toString('base64') };
+            const assertion = { image: 'data:image/png;base64,'+image.toString('base64') };
             
             return await (new Nekocurl('https://httpbin.org/post', { autoString: false, json: true })).setDriver('nekocurl').setMethod('POST').attachFiles(files).send().then((json) => {
                 assert.deepStrictEqual(assertion, json.files);
