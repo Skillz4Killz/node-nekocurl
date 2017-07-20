@@ -370,6 +370,7 @@ for(let drivername of drivers) {
             const drv = require(path.join(__dirname, 'drivers', drivername)); // eslint-disable-line global-require
             NekocurlAvailableDrivers.set(drivername.substr(0, (drivername.length - 10)), drv);
         } catch(error) {
+            console.error(error);
             /* continue regardless of error */
         }
     }

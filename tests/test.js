@@ -13,9 +13,9 @@ const Nekocurl = require(path.join(__dirname, '..', 'index.js'));
 const pkg = require(path.join(__dirname, '..', 'package.json'));
 
 describe('Nekocurl general testing', () => {
-    describe('Has drivers snekfetch & request', () => {
+    describe('Has drivers nekocurl & snekfetch & request', () => {
         it('should return true', () => {
-            assert.strictEqual(true, (Nekocurl.hasDriver('snekfetch') && Nekocurl.hasDriver('request')));
+            assert.strictEqual(true, (Nekocurl.hasDriver('nekocurl') && Nekocurl.hasDriver('snekfetch') && Nekocurl.hasDriver('request')));
         });
     });
     
@@ -184,7 +184,7 @@ describe('Nekocurl testing', () => {
             const files = [{ name: 'image', data: image, filename: 'image.png' }];
             const assertion = { image: 'data:[object Object];base64,'+image.toString('base64') };
             
-            return await (new Nekocurl('https://httpbin.org/post', { autoString: false, json: true })).setDriver('snekfetch').setMethod('POST').attachFiles(files).send().then((json) => {
+            return await (new Nekocurl('https://httpbin.org/post', { autoString: false, json: true })).setDriver('nekocurl').setMethod('POST').attachFiles(files).send().then((json) => {
                 assert.deepStrictEqual(assertion, json.files);
                 return undefined;
             });
