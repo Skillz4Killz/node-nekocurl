@@ -59,6 +59,69 @@ function makeBody(response, text) {
     return body;
 }
 
+function applyRequestHandlers(rStream, request, options, driverOptions, Nekocurl, handleError, reject, resolve) {
+    request.once('abort', handleError).once('aborted', handleError).once('error', handleError).once('response', (response) => {
+        const stream = new Stream.PassThrough();
+        
+        if(doUnzip(response)) {
+            response.pipe(zlib.createUnzip({
+                flush: zlib.Z_SYNC_FLUSH,
+                finishFlush: zlib.Z_SYNC_FLUSH
+            })).pipe(stream);
+        } else {
+            response.pipe(stream);
+        }
+        
+        const body = [ ];
+        
+        stream.on('data', (chunk) => {
+            if(!rStream.push(chunk)) {
+                rStream.pause();
+            }
+          
+            body.push(chunk);
+        });
+
+        stream.once('end', () => {
+            rStream.push(null);
+            const concated = Buffer.concat(body);
+            
+            if(driverOptions.followRedirects !== false && [ 301, 302, 303, 307, 308 ].includes(response.statusCode)) {
+                let method = options.method;
+                let data = options.data;
+                
+                if([ 301, 302 ].includes(response.statusCode)) {
+                    if(options.method !== 'HEAD') {
+                        method = 'GET';
+                    }
+                    
+                    data = null;
+                } else if(response.statusCode === 303) {
+                    method = 'GET';
+                }
+                
+                return resolve(driverNekocurl(Object.assign(options, { url: getNewURL(response), method: method, data: data }), driverOptions, Nekocurl)); // eslint-disable-line no-use-before-define
+            }
+  
+            const res = {
+                request: request,
+                body: makeBody(response, concated),
+                text: concated.toString(),
+                headers: response.headers,
+                status: response.statusCode,
+                statusText: (response.statusText || http.STATUS_CODES[response.statusCode])
+            };
+  
+            if(response.statusCode >= 200 && response.statusCode < 300) {
+                return resolve(res);
+            }
+            
+            error.message = (res.status+' '+res.statusText).trim();
+            return reject(Object.assign(error, res));
+        });
+    });
+}
+
 function makeRequest(options, driverOptions, Nekocurl) { // eslint-disable-line complexity
     const rStream = this; // eslint-disable-line no-invalid-this
     Stream.Readable.call(rStream);
@@ -66,10 +129,6 @@ function makeRequest(options, driverOptions, Nekocurl) { // eslint-disable-line 
     if(!driverOptions || !(driverOptions instanceof Object)) {
         driverOptions = { };
     }
-    
-    const url = URL.parse(options.url);
-    url.method = options.method;
-    url.headers = options.headers;
     
     if(options.files.length > 0) {
         const form = new FormData();
@@ -80,9 +139,13 @@ function makeRequest(options, driverOptions, Nekocurl) { // eslint-disable-line 
         }
     }
     
-    if (url.method !== 'HEAD') {
+    if (options.method !== 'HEAD') {
         options.headers['accept-encoding'] = 'gzip, deflate';
     }
+    
+    const url = URL.parse(options.url);
+    url.method = options.method;
+    url.headers = options.headers;
     
     const error = new Error();
     const request = (url.protocol.replace(':', '') === 'https' ? https : http).request(url);
@@ -102,67 +165,7 @@ function makeRequest(options, driverOptions, Nekocurl) { // eslint-disable-line 
             return reject(err);
         };
         
-        request.once('abort', handleError).once('aborted', handleError).once('error', handleError).once('response', (response) => {
-            const stream = new Stream.PassThrough();
-            
-            if(doUnzip(response)) {
-                response.pipe(zlib.createUnzip({
-                    flush: zlib.Z_SYNC_FLUSH,
-                    finishFlush: zlib.Z_SYNC_FLUSH
-                })).pipe(stream);
-            } else {
-                response.pipe(stream);
-            }
-            
-            const body = [ ];
-            
-            stream.on('data', (chunk) => {
-                if(!rStream.push(chunk)) {
-                    rStream.pause();
-                }
-              
-                body.push(chunk);
-            });
-    
-            stream.once('end', () => {
-                rStream.push(null);
-                const concated = Buffer.concat(body);
-                
-                if(driverOptions.followRedirects !== false && [ 301, 302, 303, 307, 308 ].includes(response.statusCode)) {
-                    let method = options.method;
-                    let data = options.data;
-                    
-                    if([ 301, 302 ].includes(response.statusCode)) {
-                        if(options.method !== 'HEAD') {
-                            method = 'GET';
-                        }
-                        
-                        data = null;
-                    } else if(response.statusCode === 303) {
-                        method = 'GET';
-                    }
-                    
-                    return resolve(driverNekocurl(Object.assign(options, { url: getNewURL(response), method: method, data: data }), driverOptions, Nekocurl)); // eslint-disable-line no-use-before-define
-                }
-      
-                const res = {
-                    request: request,
-                    body: makeBody(response, concated),
-                    text: concated.toString(),
-                    headers: response.headers,
-                    status: response.statusCode,
-                    statusText: (response.statusText || http.STATUS_CODES[response.statusCode])
-                };
-      
-                if(response.statusCode >= 200 && response.statusCode < 300) {
-                    return resolve(res);
-                }
-                
-                error.message = (res.status+' '+res.statusText).trim();
-                return reject(Object.assign(error, res));
-            });
-        });
-        
+        applyRequestHandlers(rStream, request, options, driverOptions, Nekocurl, handleError, reject, resolve);
         request.end((options.data ? (options.data.finalize ? options.data.finalize() : options.data) : undefined));
     });
 }
