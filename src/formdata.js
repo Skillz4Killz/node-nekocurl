@@ -16,10 +16,6 @@ class FormData {
     }
 
     append(name, data, filename) {
-        if(data === undefined) {
-            return;
-        }
-        
         let str = '\r\n--'+this.boundary+'\r\nContent-Disposition: form-data; name="'+name+'"';
         
         let mimetype = null;
@@ -35,9 +31,6 @@ class FormData {
 
         if(data instanceof Buffer) {
             mimetype = filetype(data).mime;
-        } else if(data instanceof Object) {
-            mimetype = 'application/json';
-            data = Buffer.from(JSON.stringify(data));
         } else {
             data = Buffer.from(String(data));
         }

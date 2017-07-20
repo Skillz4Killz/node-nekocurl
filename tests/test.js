@@ -131,7 +131,7 @@ describe('Nekocurl testing', function () {
     
     describe('Simple HEAD', () => {
         it('should return true if returned method is HEAD', () => {
-            return (new Nekocurl('https://curl.neko.run/testHEAD.php', { method: 'HEAD', json: true })).setDriver('nekocurl').setHeader('User-Agent', 'Neko.run HEAD test').send().then((req) => {
+            return (new Nekocurl('http://curl.neko.run/testHEAD.php', { method: 'HEAD', json: true })).setDriver('nekocurl').setHeader('User-Agent', 'Neko.run HEAD test').send().then((req) => {
                 assert.deepStrictEqual('HEAD', req['x-request-method']);
                 return undefined;
             });
