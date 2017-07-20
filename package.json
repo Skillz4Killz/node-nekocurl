@@ -6,6 +6,7 @@
   "author": "Charlotte Dunois",
   "license": "MIT",
   "dependencies": {
+    "file-type": "^5.2.0",
     "mime-types": "^2.1.15"
   },
   "peerDependencies": {
