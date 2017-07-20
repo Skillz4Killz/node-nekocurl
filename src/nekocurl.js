@@ -25,7 +25,7 @@ const NekocurlDefaultUseragent = (NEKOCURL_DEFAULT_USERAGENT ? NEKOCURL_DEFAULT_
  * @param     {string|null}           [options.data=null]         The request payload.
  * @param     {Array<FileOptions>}    [options.files=[ ]]         Files you wanna send.
  * @param     {boolean}               [options.autoString=true]   Automatically turn buffers into strings.
- * @param     {boolean}               [options.json=false]        Set true, if payload is JSON and/or Nekocurl should automatically parse response JSON (Snekfetch does it depending on Content-Type).
+ * @param     {boolean}               [options.json=false]        Set true, if payload is JSON and/or Nekocurl should automatically parse response JSON.
  * @returns   {Nekocurl}
  * @throws    {Error}
  */
@@ -329,7 +329,7 @@ class Nekocurl {
             this.setHeader('Content-Type', 'application/json');
         }
 
-        return this.getDriver().driver(options, this._driverOptions);
+        return this.getDriver().driver(options, this._driverOptions, this);
     }
     
     /**
@@ -377,8 +377,8 @@ for(let drivername of drivers) {
 
 if(NekocurlAvailableDrivers.has(NEKOCURL_DEFAULT_DRIVER)) {
     NekocurlDefaultDriver = NEKOCURL_DEFAULT_DRIVER;
-} else if(NekocurlAvailableDrivers.has('snekfetch')) {
-    NekocurlDefaultDriver = 'snekfetch';
+} else if(NekocurlAvailableDrivers.has('nekocurl')) {
+    NekocurlDefaultDriver = 'nekocurl';
 } else if(NekocurlAvailableDrivers.size > 0) {
     NekocurlDefaultDriver = NekocurlAvailableDrivers.keys().next().value;
 }
