@@ -59,7 +59,17 @@ function makeBody(response, text) {
     return body;
 }
 
-function applyRequestHandlers(rStream, request, options, driverOptions, Nekocurl, handleError, reject, resolve) {
+function applyRequestHandlers(rStream, request, options, driverOptions, Nekocurl, error, reject, resolve) {
+    const handleError = (err) => {
+        if (!err) {
+            err = error;
+            err.message = 'An unknown error occured';
+        }
+        
+        err.request = request;
+        return reject(err);
+    };
+    
     request.once('abort', handleError).once('aborted', handleError).once('error', handleError).once('response', (response) => {
         const stream = new Stream.PassThrough();
         
@@ -155,17 +165,7 @@ function makeRequest(options, driverOptions, Nekocurl) { // eslint-disable-line 
             rStream.resume();
         };
         
-        const handleError = (err) => {
-            if (!err) {
-                err = error;
-                err.message = 'An unknown error occured';
-            }
-            
-            err.request = request;
-            return reject(err);
-        };
-        
-        applyRequestHandlers(rStream, request, options, driverOptions, Nekocurl, handleError, reject, resolve);
+        applyRequestHandlers(rStream, request, options, driverOptions, Nekocurl, error, reject, resolve);
         request.end((options.data ? (options.data.finalize ? options.data.finalize() : options.data) : undefined));
     });
 }
