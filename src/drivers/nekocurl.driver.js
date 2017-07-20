@@ -92,7 +92,7 @@ function applyRequestHandlers(rStream, request, options, driverOptions, Nekocurl
             body.push(chunk);
         });
 
-        stream.once('end', () => {
+        stream.once('end', async () => {
             rStream.push(null);
             const concated = Buffer.concat(body);
             
@@ -110,7 +110,13 @@ function applyRequestHandlers(rStream, request, options, driverOptions, Nekocurl
                     method = 'GET';
                 }
                 
-                return resolve(driverNekocurl(Object.assign(options, { url: getNewURL(response), method: method, data: data }), driverOptions, Nekocurl)); // eslint-disable-line no-use-before-define
+                try {
+                    resolve(await driverNekocurl(Object.assign(options, { url: getNewURL(response), method: method, data: data }), driverOptions, Nekocurl)); // eslint-disable-line no-use-before-define
+                } catch(err) {
+                    request.emit('error', err);
+                }
+                
+                return undefined;
             }
   
             const res = {
