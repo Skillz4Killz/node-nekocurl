@@ -126,7 +126,9 @@ describe('Nekocurl general testing', () => {
     });
 });
 
-describe('Nekocurl testing', () => {
+describe('Nekocurl testing', function () {
+    this.timeout(10000); // eslint-disable-line no-invalid-this
+    
     describe('Simple HEAD', () => {
         it('should return true if returned method is HEAD', () => {
             return (new Nekocurl('https://curl.neko.run/testHEAD.php', { method: 'HEAD', json: true })).setDriver('nekocurl').setHeader('User-Agent', 'Neko.run HEAD test').send().then((req) => {
@@ -177,10 +179,10 @@ describe('Nekocurl testing', () => {
     });
     
     describe('POST upload', function () {
-        this.timeout(20000); // eslint-disable-line no-invalid-this
+        this.timeout(30000); // eslint-disable-line no-invalid-this
         
         it('should return true if returned file data is equal to specified data', async () => {
-            const image = await (new Nekocurl(undefined, { autoString: false, driver: 'nekocurl', method: 'GET', driverOptions: {} })).setURL('https://i.imgur.com/1sDDaC2.png').send();
+            const image = await (new Nekocurl(undefined, { autoString: false, driver: 'nekocurl', method: 'GET' })).setURL('https://i.imgur.com/1sDDaC2.png').send();
             const files = [{ name: 'image', data: image, filename: 'image.png' }];
             const assertion = { image: 'data:[object Object];base64,'+image.toString('base64') };
             
@@ -201,7 +203,9 @@ describe('Nekocurl testing', () => {
     });
 });
 
-describe('Nekocurl testing with snekfetch', () => {
+describe('Nekocurl testing with snekfetch', function () {
+    this.timeout(10000); // eslint-disable-line no-invalid-this
+    
     describe('Simple HEAD', () => {
         it('should return true if returned method is HEAD', () => {
             return (new Nekocurl('https://curl.neko.run/testHEAD.php', { method: 'HEAD', json: true })).setDriver('snekfetch').setHeader('User-Agent', 'Neko.run HEAD test').send().then((req) => {
@@ -252,10 +256,10 @@ describe('Nekocurl testing with snekfetch', () => {
     });
     
     describe('POST upload', function () {
-        this.timeout(20000); // eslint-disable-line no-invalid-this
+        this.timeout(30000); // eslint-disable-line no-invalid-this
         
         it('should return true if returned file data is equal to specified data', async () => {
-            const image = await (new Nekocurl(undefined, { autoString: false, driver: 'snekfetch', method: 'GET', driverOptions: {} })).setURL('https://i.imgur.com/1sDDaC2.png').send();
+            const image = await (new Nekocurl(undefined, { autoString: false, driver: 'snekfetch', method: 'GET', driverOptions: { } })).setURL('https://i.imgur.com/1sDDaC2.png').send();
             const files = [{ name: 'image', data: image, filename: 'image.png' }];
             const assertion = { image: 'data:[object Object];base64,'+image.toString('base64') };
             
@@ -276,7 +280,9 @@ describe('Nekocurl testing with snekfetch', () => {
     });
 });
 
-describe('Nekocurl testing with request', () => {
+describe('Nekocurl testing with request', function () {
+    this.timeout(10000); // eslint-disable-line no-invalid-this
+    
     describe('Simple HEAD', () => {
         it('should return true if returned method is HEAD', () => {
             return (new Nekocurl('https://curl.neko.run/testHEAD.php', { method: 'HEAD', json: true })).setDriver('request').setHeader('User-Agent', 'Neko.run HEAD test').send(true).then((req) => {
@@ -327,7 +333,7 @@ describe('Nekocurl testing with request', () => {
     });
     
     describe('POST upload', function () {
-        this.timeout(20000); // eslint-disable-line no-invalid-this
+        this.timeout(30000); // eslint-disable-line no-invalid-this
         
         it('should return true if returned file data is equal to specified data', async () => {
             const image = await (new Nekocurl('https://i.imgur.com/1sDDaC2.png', { autoString: false, driver: 'request', method: 'GET' })).setDriverOptions({ encoding: null }).send();

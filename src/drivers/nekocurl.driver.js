@@ -48,18 +48,21 @@ function makeBody(response, text) {
     const type = response.headers['content-type'];
     if(type && type.includes('application/json')) {
         try {
-            body = JSON.parse(text);
-        } catch (err) {
+            body = JSON.parse(text.toString());
+        } catch(err) {
             /* continue regardless of error */
         }
     } else if (type && type.includes('application/x-www-form-urlencoded')) {
-        body = qs.parse(text);
+        body = qs.parse(text.toString());
     }
     
     return body;
 }
 
 function makeRequest(options, driverOptions, Nekocurl) { // eslint-disable-line complexity
+    const rStream = this; // eslint-disable-line no-invalid-this
+    Stream.Readable.call(rStream);
+    
     if(!driverOptions || !(driverOptions instanceof Object)) {
         driverOptions = { };
     }
@@ -68,10 +71,27 @@ function makeRequest(options, driverOptions, Nekocurl) { // eslint-disable-line 
     url.method = options.method;
     url.headers = options.headers;
     
+    if(options.files.length > 0) {
+        const form = new FormData();
+        options.headers['content-type'] = 'multipart/form-data; boundary='+form.boundary;
+        
+        for(let i = 0; i < options.files.length; i++) {
+            attachFile(options, form, options.files[i].name, options.files[i].data, options.files[i].filename);
+        }
+    }
+    
+    if (url.method !== 'HEAD') {
+        options.headers['accept-encoding'] = 'gzip, deflate';
+    }
+    
     const error = new Error();
     const request = (url.protocol.replace(':', '') === 'https' ? https : http).request(url);
     
     return new Promise((resolve, reject) => {
+        rStream._read = () => {
+            rStream.resume();
+        };
+        
         const handleError = (err) => {
             if (!err) {
                 err = error;
@@ -79,7 +99,7 @@ function makeRequest(options, driverOptions, Nekocurl) { // eslint-disable-line 
             }
             
             err.request = request;
-            reject(err);
+            return reject(err);
         };
         
         request.once('abort', handleError).once('aborted', handleError).once('error', handleError).once('response', (response) => {
@@ -97,15 +117,15 @@ function makeRequest(options, driverOptions, Nekocurl) { // eslint-disable-line 
             const body = [ ];
             
             stream.on('data', (chunk) => {
-                if(!this.push(chunk)) { // eslint-disable-line no-invalid-this
-                    this.pause(); // eslint-disable-line no-invalid-this
+                if(!rStream.push(chunk)) {
+                    rStream.pause();
                 }
               
                 body.push(chunk);
             });
     
             stream.once('end', () => {
-                this.push(null); // eslint-disable-line no-invalid-this
+                rStream.push(null);
                 const concated = Buffer.concat(body);
                 
                 if(driverOptions.followRedirects !== false && [ 301, 302, 303, 307, 308 ].includes(response.statusCode)) {
@@ -127,7 +147,7 @@ function makeRequest(options, driverOptions, Nekocurl) { // eslint-disable-line 
       
                 const res = {
                     request: request,
-                    body: makeBody(response, concated.toString()),
+                    body: makeBody(response, concated),
                     text: concated.toString(),
                     headers: response.headers,
                     status: response.statusCode,
@@ -139,19 +159,9 @@ function makeRequest(options, driverOptions, Nekocurl) { // eslint-disable-line 
                 }
                 
                 error.message = (res.status+' '+res.statusText).trim();
-                Object.assign(error, res);
-                return reject(error);
+                return reject(Object.assign(error, res));
             });
         });
-        
-        if(options.files.length > 0) {
-            const form = new FormData();
-            Nekocurl.setHeader('Content-Type', 'multipart/form-data; boundary='+form.boundary);
-            
-            for(let i = 0; i < options.files.length; i++) {
-                attachFile(options, form, options.files[i].name, options.files[i].data, options.files[i].filename);
-            }
-        }
         
         request.end((options.data ? (options.data.finalize ? options.data.finalize() : options.data) : undefined));
     });
@@ -160,7 +170,7 @@ function makeRequest(options, driverOptions, Nekocurl) { // eslint-disable-line 
 util.inherits(makeRequest, Stream.Readable);
 
 const driverNekocurl = (...options) => {
-    return (new makeRequest(...options));
+    return new makeRequest(...options);
 };
 
 module.exports = {

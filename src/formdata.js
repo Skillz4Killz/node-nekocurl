@@ -564,7 +564,7 @@ class FormData {
             return;
         }
         
-        let str = '\n--'+this.boundary+'\nContent-Disposition: form-data; name="'+name+'"';
+        let str = '\r\n--'+this.boundary+'\r\nContent-Disposition: form-data; name="'+name+'"';
         
         let mimetype = null;
         if(filename) {
@@ -587,12 +587,12 @@ class FormData {
         }
 
         if(mimetype) {
-            str += '\nContent-Type: '+mimetype;
+            str += '\r\nContent-Type: '+mimetype;
         }
         
         this.buffer = Buffer.concat([
             this.buffer,
-            Buffer.from(str+'\n\n'),
+            Buffer.from(str+'\r\n\r\n'),
             data
         ]);
     }
@@ -600,7 +600,7 @@ class FormData {
     finalize() {
         this.buffer = Buffer.concat([
             this.buffer,
-            Buffer.from('\n--'+this.boundary+'--')
+            Buffer.from('\r\n--'+this.boundary+'--')
         ]);
         
         return this.buffer;
