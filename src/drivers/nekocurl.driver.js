@@ -26,7 +26,7 @@ function doUnzip(response) {
         return false;
     }
     
-    return /^\s*(?:deflate|gzip)\s*$/.test(res.headers['content-encoding']);
+    return /^\s*(?:deflate|gzip)\s*$/.test(response.headers['content-encoding']);
 }
 
 function getNewURL(response) {
@@ -35,10 +35,10 @@ function getNewURL(response) {
     }
     
     return URL.resolve(URL.format({
-        protocol: (request.connection.encrypted ? 'https:' : 'http:'),
-        hostname: request.getHeader('host'),
-        pathname: request.path.split('?')[0],
-        query: request.query
+        protocol: (response.connection.encrypted ? 'https:' : 'http:'),
+        hostname: response.getHeader('host'),
+        pathname: response.path.split('?')[0],
+        query: response.query
     }), response.headers.location);
 }
 
@@ -132,12 +132,12 @@ function makeRequest(options, driverOptions, Nekocurl) { // eslint-disable-line 
                 };
       
                 if(response.statusCode >= 200 && response.statusCode < 300) {
-                    resolve(res);
-                } else {
-                    error.message = (res.status+' '+res.statusText).trim();
-                    Object.assign(error, res);
-                    reject(error);
+                    return resolve(res);
                 }
+                
+                error.message = (res.status+' '+res.statusText).trim();
+                Object.assign(error, res);
+                return reject(error);
             });
         });
         
