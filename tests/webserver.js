@@ -77,7 +77,7 @@ app.post('/post', upload.any(), (req, res) => {
     res.end();
 });
 
-app.get('/compression-url', compression(), (req, res) => {
+app.get('/compression-url', compression({ threshold: 0, filter: () => true }), (req, res) => {
     res.set('Content-Type', 'application/x-www-form-urlencoded');
     res.end(querystring.stringify(req.query));
 });
