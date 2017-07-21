@@ -7,7 +7,7 @@
 
 const Snekfetch = require('snekfetch');
 
-const driverSnekfetch = (options, driverOptions) => {
+function driverSnekfetch(options, driverOptions) {
     if(!driverOptions || !(driverOptions instanceof Object)) {
         driverOptions = { };
     }
@@ -19,7 +19,7 @@ const driverSnekfetch = (options, driverOptions) => {
     }
     
     return request;
-};
+}
 
 module.exports = {
     multiple: false,
