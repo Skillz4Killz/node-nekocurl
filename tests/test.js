@@ -12,6 +12,8 @@ const querystring = require('querystring');
 const Nekocurl = require(path.join(__dirname, '..', 'index.js'));
 const pkg = require(path.join(__dirname, '..', 'package.json'));
 
+const webserver = require(path.join(__dirname, 'webserver.js')); // eslint-disable-line no-unused-vars
+
 describe('Nekocurl general testing', () => {
     describe('Has drivers nekocurl & snekfetch & request', () => {
         it('should return true', () => {
@@ -131,7 +133,7 @@ describe('Nekocurl testing', function () {
     
     describe('Simple HEAD', () => {
         it('should return true if returned method is HEAD', () => {
-            return (new Nekocurl('http://curl.neko.run/testHEAD.php', { method: 'HEAD', json: true })).setDriver('nekocurl').setHeader('User-Agent', 'Neko.run HEAD test').send().then((req) => {
+            return (new Nekocurl('http://localhost:5001/head', { method: 'HEAD', json: true })).setDriver('nekocurl').send().then((req) => {
                 assert.deepStrictEqual('HEAD', req['x-request-method']);
                 return undefined;
             });
@@ -141,7 +143,7 @@ describe('Nekocurl testing', function () {
     describe('Simple GET with params', () => {
         it('should return true if returned args are equal to passed GET params', () => {
             const params = { But: 'will it blend?', Nekocurl: 'is amazing' };
-            return (new Nekocurl('https://httpbin.org/get?'+querystring.stringify(params), { json: true })).setDriver('nekocurl').send().then((json) => {
+            return (new Nekocurl('http://localhost:5001/get?'+querystring.stringify(params), { json: true })).setDriver('nekocurl').send().then((json) => {
                 assert.deepStrictEqual(params, json.args);
                 return undefined;
             });
@@ -151,7 +153,7 @@ describe('Nekocurl testing', function () {
     describe('Simple GET with headers', () => {
         it('should return true if returned headers are equal to specified ones', () => {
             const headers = { 'Accept': 'application/json', 'Accept-Encoding': 'gzip, deflate', 'Connection': 'close', 'Content-Type': 'application/json', 'Host': 'httpbin.org', 'User-Agent': 'Nekocurl Unit-Testing', 'X-Userlimit': '500' };
-            return (new Nekocurl('https://httpbin.org/headers', { json: true })).setDriver('nekocurl').setHeader('Accept', 'application/json').setHeaders(headers).send().then((json) => {
+            return (new Nekocurl('http://localhost:5001/get', { json: true })).setDriver('nekocurl').setHeader('Accept', 'application/json').setHeaders(headers).send().then((json) => {
                 assert.deepStrictEqual(headers, json.headers);
                 return undefined;
             });
@@ -161,7 +163,7 @@ describe('Nekocurl testing', function () {
     describe('Simple POST', () => {
         it('should return true if returned post params are equal to specified ones', () => {
             const params = [{ test: 'hahaha' }];
-            return (new Nekocurl('https://httpbin.org/post', { json: true })).setDriver('nekocurl').setMethod('POST').attachFile(Object.keys(params[0])[0], params[0][Object.keys(params[0])[0]]).send().then((json) => {
+            return (new Nekocurl('http://localhost:5001/post', { json: true })).setDriver('nekocurl').setMethod('POST').attachFile(Object.keys(params[0])[0], params[0][Object.keys(params[0])[0]]).send().then((json) => {
                 assert.deepStrictEqual(params[0], json.form);
                 return undefined;
             });
@@ -171,7 +173,7 @@ describe('Nekocurl testing', function () {
     describe('JSON POST', () => {
         it('should return true if returned json data is equal to specified data', () => {
             const data = { test: 'is this a joke' };
-            return (new Nekocurl('https://httpbin.org/post', { json: true })).setDriver('nekocurl').setMethod('POST').setData(JSON.stringify(data)).send().then((json) => {
+            return (new Nekocurl('http://localhost:5001/post', { json: true })).setDriver('nekocurl').setMethod('POST').setData(JSON.stringify(data)).send().then((json) => {
                 assert.deepStrictEqual(data, json.json);
                 return undefined;
             });
@@ -186,7 +188,7 @@ describe('Nekocurl testing', function () {
             const files = [{ name: 'image', data: image, filename: 'image.png' }];
             const assertion = { image: 'data:image/png;base64,'+image.toString('base64') };
             
-            return await (new Nekocurl('https://httpbin.org/post', { autoString: false, json: true })).setDriver('nekocurl').setMethod('POST').attachFiles(files).send().then((json) => {
+            return await (new Nekocurl('http://localhost:5001/post', { autoString: false, json: true })).setDriver('nekocurl').setMethod('POST').attachFiles(files).send().then((json) => {
                 assert.deepStrictEqual(assertion, json.files);
                 return undefined;
             });
@@ -195,8 +197,44 @@ describe('Nekocurl testing', function () {
     
     describe('Make driver throw error', () => {
         it('should throw 405 Method Not Allowed error (GET to POST endpoint request)', () => {
-            return (new Nekocurl('https://httpbin.org/post', { json: true })).setDriver('nekocurl').send(true).catch((req) => Promise.resolve(req)).then((req) => {
+            return (new Nekocurl('http://localhost:5001/fail', { json: true })).setDriver('nekocurl').send(true).catch((req) => Promise.resolve(req)).then((req) => {
                 assert.strictEqual(405, req.status);
+                return undefined;
+            });
+        });
+    });
+    
+    describe('Redirection Following', () => {
+        it('should follow to /head', () => {
+            return (new Nekocurl('http://localhost:5001/redirect', { method: 'HEAD', json: true })).setDriver('nekocurl').send().then((req) => {
+                assert.deepStrictEqual('HEAD', req['x-request-method']);
+                return undefined;
+            });
+        });
+    });
+    
+    describe('Redirection Following Relative', () => {
+        it('should follow to /head', () => {
+            return (new Nekocurl('http://localhost:5001/redirectRelative', { method: 'GET', json: true })).setDriver('nekocurl').send().then((req) => {
+                assert.deepStrictEqual('GET', req['x-request-method']);
+                return undefined;
+            });
+        });
+    });
+    
+    describe('Redirection Following Disabled', () => {
+        it('should not follow to /head and return with HTTP 301', () => {
+            return (new Nekocurl('http://localhost:5001/redirectRelative', { method: 'HEAD', json: true })).setDriver('nekocurl').send().catch((req) => Promise.resolve(req)).then((req) => {
+                assert.deepStrictEqual(301, req.status);
+                return undefined;
+            });
+        });
+    });
+    
+    describe('Redirection Following 303', () => {
+        it('should follow to /seeOther and return with HTTP 204', () => {
+            return (new Nekocurl('http://localhost:5001/redirectSeeOther', { method: 'HEAD', json: true })).setDriver('nekocurl').send().catch((req) => Promise.resolve(req)).then((req) => {
+                assert.deepStrictEqual(204, req.status);
                 return undefined;
             });
         });
@@ -208,7 +246,7 @@ describe('Nekocurl testing with snekfetch', function () {
     
     describe('Simple HEAD', () => {
         it('should return true if returned method is HEAD', () => {
-            return (new Nekocurl('https://curl.neko.run/testHEAD.php', { method: 'HEAD', json: true })).setDriver('snekfetch').setHeader('User-Agent', 'Neko.run HEAD test').send().then((req) => {
+            return (new Nekocurl('https://curl.neko.run/testHEAD.php', { method: 'HEAD', json: true })).setDriver('snekfetch').send().then((req) => {
                 assert.deepStrictEqual('HEAD', req['x-request-method']);
                 return undefined;
             });
@@ -285,7 +323,7 @@ describe('Nekocurl testing with request', function () {
     
     describe('Simple HEAD', () => {
         it('should return true if returned method is HEAD', () => {
-            return (new Nekocurl('https://curl.neko.run/testHEAD.php', { method: 'HEAD', json: true })).setDriver('request').setHeader('User-Agent', 'Neko.run HEAD test').send(true).then((req) => {
+            return (new Nekocurl('https://curl.neko.run/testHEAD.php', { method: 'HEAD', json: true })).setDriver('request').send(true).then((req) => {
                 assert.deepStrictEqual('HEAD', req.headers['x-request-method']);
                 return undefined;
             });
