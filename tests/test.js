@@ -242,6 +242,16 @@ describe('Nekocurl testing', function () {
             });
         });
     });
+    
+    describe('Compression with a GET request', () => {
+        it('should return the sent query string back - compressed', () => {
+            const params = { Nekocurl: 'is amazing' };
+            return (new Nekocurl('http://localhost:5001/compression-url?'+querystring.stringify(params), { json: true })).setDriver('nekocurl').send().catch((req) => Promise.resolve(req)).then((req) => {
+                assert.deepStrictEqual(req, params);
+                return undefined;
+            });
+        });
+    });
 });
 
 describe('Nekocurl testing with snekfetch', function () {
