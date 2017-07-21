@@ -17,22 +17,26 @@ const upload = multer();
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use((req, res, next) => {
+    res.set('Host', 'localhost:5001');
+    next();
+});
 
-app.head('/redirect', (req, res) => {
-    res.status(301);
-    res.set('Location', 'http://localhost:5001/HEAD');
+app.all('/redirect', (req, res) => {
+    res.status(302);
+    res.set('Location', 'http://localhost:5001/head');
     res.end();
 });
 
-app.head('/redirectRelative', (req, res) => {
-    res.status(301);
-    res.set('Location', '/HEAD');
+app.all('/redirectRelative', (req, res) => {
+    res.status(302);
+    res.set('Location', '/head');
     res.end();
 });
 
-app.head('/redirectSeeOther', (req, res) => {
+app.all('/redirectSeeOther', (req, res) => {
     res.status(303);
-    res.set('Location', 'http://localhost:5001//seeOther');
+    res.set('Location', 'http://localhost:5001/seeOther');
     res.end();
 });
 
@@ -64,7 +68,12 @@ app.post('/post', upload.any(), (req, res) => {
         req.json = [ ];
     }
     
-    res.json({ form: req.body, files: req.files, json: req.json });
+    const files = { };
+    for(const item of req.files) {
+        files[item.fieldname] = 'data:'+item.mimetype+';base64,'+item.buffer.toString('base64');
+    }
+    
+    res.json({ form: req.body, files: files, json: req.json });
     res.end();
 });
 
@@ -79,7 +88,7 @@ app.all('/fail', (req, res) => {
     res.end();
 });
 
-app.get('/seeOther', (req, res) => {
+app.all('/seeOther', (req, res) => {
     res.status(204);
     res.end();
 });

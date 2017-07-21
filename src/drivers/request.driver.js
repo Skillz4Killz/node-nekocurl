@@ -47,15 +47,7 @@ function makeFilesObject(files) {
     return obj;
 }
 
-function driverRequest(options, driverOptions)  {
-    try {
-        if(options.json === true && typeof options.data === 'string' && options.data.length > 0) {
-            options.data = JSON.parse(options.data);
-        }
-    } catch(e) {
-        /* continue regardless of error */
-    }
-    
+function driverRequest(options, driverOptions) {
     if(!driverOptions || !(driverOptions instanceof Object)) {
         driverOptions = { };
     }
@@ -63,7 +55,7 @@ function driverRequest(options, driverOptions)  {
     const error = new Error();
     
     return new Promise((resolve, reject) => {
-        request(Object.assign({ uri: options.url, method: options.method, headers: options.headers, body: (options.data ? options.data : undefined), json: options.json }, makeFilesObject(options.files), driverOptions), (err, res) => {
+        request(Object.assign({ uri: options.url, method: options.method, headers: options.headers, body: (options.data ? options.data : undefined) }, makeFilesObject(options.files), driverOptions), (err, res) => {
             if(err) {
                 return reject(err);
             }

@@ -36,8 +36,8 @@ function getNewURL(response) {
     
     return URL.resolve(URL.format({
         protocol: (response.connection.encrypted ? 'https:' : 'http:'),
-        hostname: response.getHeader('host'),
-        pathname: response.path.split('?')[0],
+        host: response.headers.host,
+        pathname: (response.path ? response.path.split('?')[0] : '/'),
         query: response.query
     }), response.headers.location);
 }
