@@ -134,7 +134,7 @@ describe('Nekocurl testing', function () {
     describe('Simple HEAD', () => {
         it('should return true if returned method is HEAD', () => {
             return (new Nekocurl('http://localhost:5001/head', { method: 'HEAD', json: true })).setDriver('nekocurl').send().then((req) => {
-                assert.deepStrictEqual(req['x-request-method'], 'HEAD');
+                assert.strictEqual(req['x-request-method'], 'HEAD');
                 return undefined;
             });
         });
@@ -210,7 +210,7 @@ describe('Nekocurl testing', function () {
     describe('Redirection Following', () => {
         it('should follow to /head', () => {
             return (new Nekocurl('http://localhost:5001/redirect', { method: 'HEAD', json: true })).setDriver('nekocurl').send().then((req) => {
-                assert.deepStrictEqual(req['x-request-method'], 'HEAD');
+                assert.strictEqual(req['x-request-method'], 'HEAD');
                 return undefined;
             });
         });
@@ -219,7 +219,7 @@ describe('Nekocurl testing', function () {
     describe('Redirection Following Relative', () => {
         it('should follow to /head', () => {
             return (new Nekocurl('http://localhost:5001/redirectRelative', { method: 'GET', json: true })).setDriver('nekocurl').send(true).then((req) => {
-                assert.deepStrictEqual(req.headers['x-request-method'], 'GET');
+                assert.strictEqual(req.headers['x-request-method'], 'GET');
                 return undefined;
             });
         });
@@ -228,7 +228,7 @@ describe('Nekocurl testing', function () {
     describe('Redirection Following Disabled', () => {
         it('should not follow to /head and return with HTTP 301', () => {
             return (new Nekocurl('http://localhost:5001/redirect', { method: 'HEAD', json: true })).setDriver('nekocurl').setDriverOptions({ followRedirects: false }).send().catch((req) => Promise.resolve(req)).then((req) => {
-                assert.deepStrictEqual(req.status, 302);
+                assert.strictEqual(req.status, 302);
                 return undefined;
             });
         });
@@ -237,7 +237,7 @@ describe('Nekocurl testing', function () {
     describe('Redirection Following 303', () => {
         it('should follow to /seeOther and return with HTTP 204', () => {
             return (new Nekocurl('http://localhost:5001/redirectSeeOther', { method: 'HEAD', json: true })).setDriver('nekocurl').send(true).catch((req) => Promise.resolve(req)).then((req) => {
-                assert.deepStrictEqual(req.status, 204);
+                assert.strictEqual(req.status, 204);
                 return undefined;
             });
         });
@@ -247,7 +247,7 @@ describe('Nekocurl testing', function () {
         it('should return the sent query string back - compressed', () => {
             const params = { Nekocurl: 'is amazing' };
             return (new Nekocurl('http://localhost:5001/compression-url?'+querystring.stringify(params), { json: true })).setDriver('nekocurl').send().catch((req) => Promise.resolve(req)).then((req) => {
-                assert.deepStrictEqual(req, params);
+                assert.deepStrictEqual(JSON.stringify(req), JSON.stringify(params));
                 return undefined;
             });
         });
@@ -260,7 +260,7 @@ describe('Nekocurl testing with snekfetch', function () {
     describe('Simple HEAD', () => {
         it('should return true if returned method is HEAD', () => {
             return (new Nekocurl('http://localhost:5001/head', { method: 'HEAD', json: true })).setDriver('snekfetch').send().then((req) => {
-                assert.deepStrictEqual(req['x-request-method'], 'HEAD');
+                assert.strictEqual(req['x-request-method'], 'HEAD');
                 return undefined;
             });
         });
@@ -340,7 +340,7 @@ describe('Nekocurl testing with request', function () {
     describe('Simple HEAD', () => {
         it('should return true if returned method is HEAD', () => {
             return (new Nekocurl('http://localhost:5001/head', { method: 'HEAD', json: true })).setDriver('request').send(true).then((req) => {
-                assert.deepStrictEqual(req.headers['x-request-method'], 'HEAD');
+                assert.strictEqual(req.headers['x-request-method'], 'HEAD');
                 return undefined;
             });
         });
