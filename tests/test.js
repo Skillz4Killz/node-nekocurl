@@ -249,7 +249,7 @@ describe('Nekocurl testing with snekfetch', function () {
     
     describe('Simple HEAD', () => {
         it('should return true if returned method is HEAD', () => {
-            return (new Nekocurl('https://curl.neko.run/testHEAD.php', { method: 'HEAD', json: true })).setDriver('snekfetch').send().then((req) => {
+            return (new Nekocurl('http://localhost:5001/head', { method: 'HEAD', json: true })).setDriver('snekfetch').send().then((req) => {
                 assert.deepStrictEqual(req['x-request-method'], 'HEAD');
                 return undefined;
             });
