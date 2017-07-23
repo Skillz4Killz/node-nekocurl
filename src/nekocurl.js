@@ -7,8 +7,8 @@ const fs = require('fs');
 const path = require('path');
 const { version } = require(path.join(__dirname, '..', 'package.json'));
 
-const NekocurlAvailableDrivers = new Map();
 let NekocurlDefaultDriver = '';
+const NekocurlAvailableDrivers = new Map();
 const NekocurlDefaultUseragent = (NEKOCURL_DEFAULT_USERAGENT ? NEKOCURL_DEFAULT_USERAGENT : null);
 
 /**
@@ -95,7 +95,7 @@ class Nekocurl {
      * @returns   {string}
      */
     static get defaultUseragent() {
-        return NekocurlDefaultUseragent;
+        return (NekocurlDefaultUseragent ? NekocurlDefaultUseragent : 'Nekocurl v'+version+' {{NekocurlDriver}} (https://github.com/CharlotteDunois/node-nekocurl)');
     }
     
     /**
@@ -365,7 +365,7 @@ class Nekocurl {
         }
 
         if(options.headers['user-agent'] === undefined) {
-            this.setHeader('User-Agent', (Nekocurl.defaultUseragent ? Nekocurl.defaultUseragent : 'Nekocurl v'+Nekocurl.version+' '+options.driver+' (https://github.com/CharlotteDunois/node-nekocurl)'));
+            this.setHeader('User-Agent', Nekocurl.defaultUseragent.replace('{{NekocurlDriver}}', options.driver));
         }
 
         if(options.json === true && options.headers['content-type'] !== 'application/json') {

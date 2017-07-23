@@ -58,9 +58,9 @@ describe('Nekocurl general testing', () => {
         });
     });
     
-    describe('Default useragent is equal to null (defaults to default ua)', () => {
-        it('should return true', () => {
-            assert.strictEqual(null, Nekocurl.defaultUseragent);
+    describe('Default useragent starts with Nekocurl and the version', () => {
+        it('should be true', () => {
+            assert.strictEqual(true, Nekocurl.defaultUseragent.startsWith('Nekocurl v'+pkg.version));
         });
     });
     
