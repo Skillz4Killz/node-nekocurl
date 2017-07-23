@@ -18,6 +18,40 @@ describe('Nekocurl general testing', () => {
         });
     });
     
+    describe('Register new driver', () => {
+        it('should return true', () => {
+            assert.strictEqual(true, Nekocurl.registerDriver('someTestDriver', { multiple: false, driver: async () => {
+                throw new Error('I am not a real driver.');
+            } }));
+        });
+    });
+    
+    describe('Register new driver without name', () => {
+        it('should throw', () => {
+            assert.throws(() => {
+                Nekocurl.registerDriver('', { multiple: false, driver: async () => {
+                    throw new Error('I am not a real driver.');
+                } });
+            }, Error);
+        });
+    });
+    
+    describe('Register new driver without driver object', () => {
+        it('should throw', () => {
+            assert.throws(() => {
+                Nekocurl.registerDriver('someTestDriver');
+            }, Error);
+        });
+    });
+    
+    describe('Register new driver without driver in driver object', () => {
+        it('should throw', () => {
+            assert.throws(() => {
+                Nekocurl.registerDriver('someTestDriver', { multiple: false });
+            }, Error);
+        });
+    });
+    
     describe('Make new instance with no explicit driver', () => {
         it('should return true if equal to default driver', () => {
             assert.strictEqual(Nekocurl.defaultDriver, (new Nekocurl()).getDrivername());
