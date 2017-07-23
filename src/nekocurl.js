@@ -123,6 +123,7 @@ class Nekocurl {
      * @param     {string}           name          The name of the driver
      * @param     {DriverObject}     driverObject  The driver
      * @returns   {boolean}
+     * @throws    {Error}
      */
     static registerDriver(name, driverObject) {
         if(typeof name !== 'string' || name.length === 0) {
