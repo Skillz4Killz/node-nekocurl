@@ -8,8 +8,8 @@
 const http = require('http');
 const https = require('https');
 const path = require('path');
-const qs = require('querystring');
-const Stream = require('stream');
+const querystring = require('querystring');
+const { PassThrough, Readable } = require('stream');
 const URL = require('url');
 const util = require('util');
 const zlib = require('zlib');
@@ -29,31 +29,28 @@ function doUnzip(response) {
     return /^\s*(?:deflate|gzip)\s*$/.test(response.headers['content-encoding']);
 }
 
-function getNewURL(response) {
+function getNewURL(response, urlobj) {
     if(/^https?:\/\//i.test(response.headers.location)) {
         return response.headers.location;
     }
     
-    return URL.resolve(URL.format({
-        protocol: (response.connection.encrypted ? 'https:' : 'http:'),
-        host: response.headers.host,
-        pathname: (response.path ? response.path.split('?')[0] : '/'),
-        query: response.query
-    }), response.headers.location);
+    return URL.resolve(URL.format(urlobj), response.headers.location);
 }
 
 function makeBody(response, text) {
     let body = text;
     
     const type = response.headers['content-type'];
-    if(type && type.includes('application/json')) {
-        try {
-            body = JSON.parse(text.toString());
-        } catch(err) {
-            /* continue regardless of error */
+    if(type) {
+        if(type.includes('application/json')) {
+            try {
+                body = JSON.parse(text.toString());
+            } catch(err) {
+                /* continue regardless of error */
+            }
+        } else if(type.includes('application/x-www-form-urlencoded')) {
+            body = querystring.parse(text.toString());
         }
-    } else if (type && type.includes('application/x-www-form-urlencoded')) {
-        body = qs.parse(text.toString());
     }
     
     return body;
@@ -61,7 +58,7 @@ function makeBody(response, text) {
 
 function applyRequestHandlers(rStream, request, options, driverOptions, Nekocurl, error, reject, resolve) {
     const handleError = (err) => {
-        if (!err) {
+        if(!err) {
             err = error;
             err.message = 'An unknown error occured';
         }
@@ -71,13 +68,10 @@ function applyRequestHandlers(rStream, request, options, driverOptions, Nekocurl
     };
     
     request.once('abort', handleError).once('aborted', handleError).once('error', handleError).once('response', (response) => {
-        const stream = new Stream.PassThrough();
+        const stream = new PassThrough();
         
         if(doUnzip(response)) {
-            response.pipe(zlib.createUnzip({
-                flush: zlib.Z_SYNC_FLUSH,
-                finishFlush: zlib.Z_SYNC_FLUSH
-            })).pipe(stream);
+            response.pipe(zlib.createUnzip({ flush: zlib.Z_SYNC_FLUSH, finishFlush: zlib.Z_SYNC_FLUSH })).pipe(stream);
         } else {
             response.pipe(stream);
         }
@@ -94,7 +88,7 @@ function applyRequestHandlers(rStream, request, options, driverOptions, Nekocurl
 
         stream.once('end', async () => {
             rStream.push(null);
-            const concated = Buffer.concat(body);
+            const respbody = Buffer.concat(body);
             
             if(driverOptions.followRedirects !== false && [ 301, 302, 303, 307, 308 ].includes(response.statusCode)) {
                 let method = options.method;
@@ -111,7 +105,7 @@ function applyRequestHandlers(rStream, request, options, driverOptions, Nekocurl
                 }
                 
                 try {
-                    resolve(await driverNekocurl(Object.assign(options, { url: getNewURL(response), method: method, data: data }), driverOptions, Nekocurl)); // eslint-disable-line no-use-before-define
+                    resolve(await driverNekocurl(Object.assign(options, { url: getNewURL(response, URL.parse(options.url)), method: method, data: data }), driverOptions, Nekocurl)); // eslint-disable-line no-use-before-define
                 } catch(err) {
                     request.emit('error', err);
                 }
@@ -121,8 +115,8 @@ function applyRequestHandlers(rStream, request, options, driverOptions, Nekocurl
   
             const res = {
                 request: request,
-                body: makeBody(response, concated),
-                text: concated.toString(),
+                body: makeBody(response, respbody),
+                text: respbody.toString(),
                 headers: response.headers,
                 status: response.statusCode,
                 statusText: (response.statusText || http.STATUS_CODES[response.statusCode])
@@ -150,7 +144,7 @@ function applyOptionsToRequest(options) {
         }
     }
     
-    if (options.method !== 'HEAD') {
+    if(options.method !== 'HEAD') {
         options.headers['accept-encoding'] = 'gzip, deflate';
     }
     
@@ -159,7 +153,11 @@ function applyOptionsToRequest(options) {
 
 function makeRequest(options, driverOptions, Nekocurl) { // eslint-disable-line complexity
     const rStream = this; // eslint-disable-line no-invalid-this
-    Stream.Readable.call(rStream);
+    Readable.call(rStream);
+    
+    rStream._read = () => {
+        rStream.resume();
+    };
     
     if(!driverOptions || !(driverOptions instanceof Object)) {
         driverOptions = { };
@@ -171,20 +169,16 @@ function makeRequest(options, driverOptions, Nekocurl) { // eslint-disable-line 
     url.method = options.method;
     url.headers = options.headers;
     
-    const error = new Error();
-    const request = (url.protocol.replace(':', '') === 'https' ? https : http).request(url);
+    const error = new Error(); // just to get an useful stack trace, maybe
+    const request = (url.protocol.includes('https') === true ? https : http).request(url);
     
     return new Promise((resolve, reject) => {
-        rStream._read = () => {
-            rStream.resume();
-        };
-        
         applyRequestHandlers(rStream, request, options, driverOptions, Nekocurl, error, reject, resolve);
         request.end((options.data ? (options.data.finalize ? options.data.finalize() : options.data) : undefined));
     });
 }
 
-util.inherits(makeRequest, Stream.Readable);
+util.inherits(makeRequest, Readable);
 
 function driverNekocurl(...options) {
     return new makeRequest(...options);

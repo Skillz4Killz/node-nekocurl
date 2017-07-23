@@ -77,7 +77,7 @@ class Nekocurl {
      * @returns   {Map}
      */
     static get availableDrivers() {
-        return NekocurlAvailableDrivers;
+        return (new Map(NekocurlAvailableDrivers));
     }
 
     /**
@@ -115,6 +115,48 @@ class Nekocurl {
      */
     static isValidURL(url) {
         return /^(?:(?:https?):\/\/)(?:\S+(?::\S*)?@)?(?:(?:(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,}))\.?)|localhost)(?::\d{2,5})?(?:[/?#]\S*)?$/i.test(url);
+    }
+    
+    /**
+     * Registers a new driver.
+     *
+     * @param     {string}           name          The name of the driver
+     * @param     {DriverObject}     driverObject  The driver
+     * @returns   {boolean}
+     */
+    static registerDriver(name, driverObject) {
+        if(typeof name !== 'string' || name.length === 0) {
+            throw new Error('Nekocurl: You need to define a driver name when registering a driver');
+        }
+        
+        if(!(driverObject instanceof Object)) {
+            throw new Error('Nekocurl: You did not pass a driver object when registering a driver');
+        }
+        
+        if(!driverObject.driver || !(driverObject.driver instanceof Function)) {
+            throw new Error('Nekocurl: The driver does not export a driver property or the property is not a function');
+        }
+        
+        NekocurlAvailableDrivers.set(name, driverObject);
+        Nekocurl.evaluateDefaultDriver();
+        return true;
+    }
+    
+    /**
+     * Evaluates a default driver, if none has been evaluated yet.
+     *
+     * @private
+     */
+    static evaluateDefaultDriver() {
+        if(!NekocurlDefaultDriver) {
+            if(NekocurlAvailableDrivers.has(NEKOCURL_DEFAULT_DRIVER)) {
+                NekocurlDefaultDriver = NEKOCURL_DEFAULT_DRIVER;
+            } else if(NekocurlAvailableDrivers.has('nekocurl')) {
+                NekocurlDefaultDriver = 'nekocurl';
+            } else if(NekocurlAvailableDrivers.size > 0) {
+                NekocurlDefaultDriver = NekocurlAvailableDrivers.keys().next().value;
+            }
+        }
     }
     
     /**
@@ -362,6 +404,12 @@ class Nekocurl {
  * @typedef      {object}           HeadersOptions
  * @description  Each key of an property is the name (or key) of the HTTP-Header, while the property value is the HTTP-Header value.
  */
+ 
+ /**
+  * @typedef      {object}           DriverObject
+  * @property     {boolean}          multiple      A property indicating of the driver can be used for parallelism. (currently unused)
+  * @property     {function}         driver        A function that gets run when the HTTP request is supposed to get sent.
+  */
 
 const drivers = fs.readdirSync(path.join(__dirname, 'drivers'));
 for(let drivername of drivers) {
@@ -375,12 +423,6 @@ for(let drivername of drivers) {
     }
 }
 
-if(NekocurlAvailableDrivers.has(NEKOCURL_DEFAULT_DRIVER)) {
-    NekocurlDefaultDriver = NEKOCURL_DEFAULT_DRIVER;
-} else if(NekocurlAvailableDrivers.has('nekocurl')) {
-    NekocurlDefaultDriver = 'nekocurl';
-} else if(NekocurlAvailableDrivers.size > 0) {
-    NekocurlDefaultDriver = NekocurlAvailableDrivers.keys().next().value;
-}
+Nekocurl.evaluateDefaultDriver();
 
 module.exports = Nekocurl;

@@ -1,6 +1,6 @@
 {
   "name": "nekocurl",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "A HTTP client class that uses plug-in drivers to do HTTP requests.",
   "repository": "github:CharlotteDunois/node-nekocurl",
   "author": "Charlotte Dunois",
