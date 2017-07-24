@@ -26,12 +26,19 @@ function doRedirect(options, driverOptions, request, response, resolve) {
         let method = options.method;
         let data = options.data;
         
-        if([ 301, 302, 303 ].includes(response.statusCode)) {
-            if(response.statusCode === 303 || options.method !== 'HEAD') {
+        switch(response.statusCode) {
+            case 301:
+            case 302:
+                if(options.method !== 'HEAD') {
+                    method = 'GET';
+                }
+                
+                data = null;
+            break; // eslint-disable-line indent
+            case 303:
                 method = 'GET';
-            }
-            
-            data = null;
+                data = null;
+            break; // eslint-disable-line indent
         }
         
         driverNekocurl(Object.assign(options, { url: getNewURL(response, URL.parse(options.url)), method: method, data: data }), driverOptions).then((resp) => resolve(resp)).catch((error) => request.emit('error', error)); // eslint-disable-line no-use-before-define
@@ -86,9 +93,6 @@ function makeBody(response, buffer, text) {
         case 'application/x-www-form-urlencoded':
             body = querystring.parse(text);
         break; // eslint-disable-line indent
-        default:
-            /* this comment is my body */
-        break; // eslint-disable-line indent
     }
     
     return body;
@@ -107,43 +111,6 @@ function applyOptionsToRequest(options) {
     if(options.method !== 'HEAD') {
         options.headers['accept-encoding'] = 'gzip, deflate';
     }
-    
-    return undefined;
-}
-
-function makeResObject(request, response, dataChunks) {
-    const body = Buffer.concat(dataChunks);
-    const text = body.toString();
-    
-    return {
-        request: request,
-        body: makeBody(response, body, text),
-        text: text,
-        headers: response.headers,
-        status: response.statusCode,
-        statusText: (response.statusText || http.STATUS_CODES[response.statusCode])
-    };
-}
-
-function responseListener(request, response, options, driverOptions, error, resolve, reject) {
-    const dataChunks = [ ];
-    const stream = new PassThrough();
-    
-    doUnzip(response, stream, dataChunks);
-    
-    stream.once('end', () => {
-        if(doRedirect(options, driverOptions, request, response, resolve) === true) {
-            return undefined;
-        }
-        
-        const res = makeResObject(request, response, dataChunks);
-        if(res.status >= 200 && res.status < 300) {
-            return resolve(res);
-        }
-        
-        error.message = (res.status+' '+res.statusText).trim();
-        return reject(Object.assign(error, res));
-    });
     
     return undefined;
 }
@@ -170,7 +137,35 @@ function driverNekocurl(options, driverOptions) {
         };
         
         request.once('abort', handleError).once('aborted', handleError).once('error', handleError).once('response', (response) => {
-            return responseListener(request, response, options, driverOptions, error, resolve, reject);
+            const dataChunks = [ ];
+            const stream = new PassThrough();
+            
+            doUnzip(response, stream, dataChunks);
+            
+            stream.once('end', () => {
+                if(doRedirect(options, driverOptions, request, response, resolve) === true) {
+                    return undefined;
+                }
+                
+                const body = Buffer.concat(dataChunks);
+                const text = body.toString();
+                
+                const res = {
+                    request: request,
+                    body: makeBody(response, body, text),
+                    text: text,
+                    headers: response.headers,
+                    status: response.statusCode,
+                    statusText: (response.statusText || http.STATUS_CODES[response.statusCode])
+                };
+                
+                if(res.status >= 200 && res.status < 300) {
+                    return resolve(res);
+                }
+                
+                error.message = (res.status+' '+res.statusText).trim();
+                return reject(Object.assign(error, res));
+            });
         });
         
         request.end((options.data ? (options.data.finalize ? options.data.finalize() : options.data) : undefined));
