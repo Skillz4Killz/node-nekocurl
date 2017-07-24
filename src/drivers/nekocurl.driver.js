@@ -49,12 +49,16 @@ function doShouldUnzip(response) {
     return /^\s*(?:deflate|gzip)\s*$/.test(response.headers['content-encoding']);
 }
 
-function doUnzip(response, stream) {
+function doUnzip(response, stream, dataChunks) {
     if(doShouldUnzip(response) === true) {
         response.pipe(zlib.createUnzip({ flush: zlib.Z_SYNC_FLUSH, finishFlush: zlib.Z_SYNC_FLUSH })).pipe(stream);
     } else {
         response.pipe(stream);
     }
+    
+    stream.on('data', (chunk) => {
+        dataChunks.push(chunk);
+    });
     
     return undefined;
 }
@@ -129,23 +133,18 @@ function driverNekocurl(options, driverOptions) {
         };
         
         request.once('abort', handleError).once('aborted', handleError).once('error', handleError).once('response', (response) => {
-            const stream = new PassThrough();
-            doUnzip(response, stream);
-            
             const dataChunks = [ ];
+            const stream = new PassThrough();
             
-            stream.on('data', (chunk) => {
-                dataChunks.push(chunk);
-            });
+            doUnzip(response, stream, dataChunks);
 
             stream.once('end', () => {
-                const body = Buffer.concat(dataChunks);
-                const text = body.toString();
-                
-                const redirect = doRedirect(options, driverOptions, request, response, resolve);
-                if(redirect === true) {
+                if(doRedirect(options, driverOptions, request, response, resolve) === true) {
                     return undefined;
                 }
+                
+                const body = Buffer.concat(dataChunks);
+                const text = body.toString();
                 
                 const res = {
                     request: request,
