@@ -123,9 +123,9 @@ function driverNekocurl(options, driverOptions) {
     url.headers = options.headers;
 
     const error = new Error(); // just to get an useful stack trace, maybe
+    const request = (url.protocol.includes('https') === true ? https : http).request(url);
+    
     return new Promise((resolve, reject) => {
-        const request = (url.protocol.includes('https') === true ? https : http).request(url);
-        
         const handleError = (err) => {
             if(!err) {
                 err = error;
