@@ -125,7 +125,7 @@ function makeResObject(request, response, dataChunks) {
     };
 }
 
-function responseListener(request, response, options, driverOptions, resolve, reject) {
+function responseListener(request, response, options, driverOptions, error, resolve, reject) {
     const dataChunks = [ ];
     const stream = new PassThrough();
     
@@ -170,7 +170,7 @@ function driverNekocurl(options, driverOptions) {
         };
         
         request.once('abort', handleError).once('aborted', handleError).once('error', handleError).once('response', (response) => {
-            return responseListener(request, response, options, driverOptions, resolve, reject);
+            return responseListener(request, response, options, driverOptions, error, resolve, reject);
         });
         
         request.end((options.data ? (options.data.finalize ? options.data.finalize() : options.data) : undefined));
