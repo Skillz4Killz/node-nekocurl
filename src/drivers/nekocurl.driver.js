@@ -111,6 +111,20 @@ function applyOptionsToRequest(options) {
     return undefined;
 }
 
+function makeResObject(request, response, dataChunks) {
+    const body = Buffer.concat(dataChunks);
+    const text = body.toString();
+    
+    return {
+        request: request,
+        body: makeBody(response, body, text),
+        text: text,
+        headers: response.headers,
+        status: response.statusCode,
+        statusText: (response.statusText || http.STATUS_CODES[response.statusCode])
+    };
+}
+
 function driverNekocurl(options, driverOptions) {
     applyOptionsToRequest(options);
     
@@ -143,19 +157,8 @@ function driverNekocurl(options, driverOptions) {
                     return undefined;
                 }
                 
-                const body = Buffer.concat(dataChunks);
-                const text = body.toString();
-                
-                const res = {
-                    request: request,
-                    body: makeBody(response, body, text),
-                    text: text,
-                    headers: response.headers,
-                    status: response.statusCode,
-                    statusText: (response.statusText || http.STATUS_CODES[response.statusCode])
-                };
-                
-                if(response.statusCode >= 200 && response.statusCode < 300) {
+                const res = makeResObject(request, response, dataChunks);
+                if(res.status >= 200 && res.status < 300) {
                     return resolve(res);
                 }
                 
