@@ -69,6 +69,9 @@ function makeBody(response, buffer, text) {
     
     const type = String(response.headers['content-type']).trim();
     switch(type) {
+        default:
+            /* this comment is my body */
+        break; // eslint-disable-line indent
         case 'application/json':
             try {
                 body = JSON.parse(text);
