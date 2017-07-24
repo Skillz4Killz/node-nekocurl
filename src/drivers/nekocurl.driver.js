@@ -25,14 +25,12 @@ function doRedirect(options, driverOptions, request, response, resolve) {
         let method = options.method;
         let data = options.data;
         
-        if([ 301, 302 ].includes(response.statusCode)) {
-            if(options.method !== 'HEAD') {
+        if([ 301, 302, 303 ].includes(response.statusCode)) {
+            if(response.statusCode === 303 || options.method !== 'HEAD') {
                 method = 'GET';
             }
             
             data = null;
-        } else if(response.statusCode === 303) {
-            method = 'GET';
         }
         
         driverNekocurl(Object.assign(options, { url: getNewURL(response, URL.parse(options.url)), method: method, data: data }), driverOptions).then((resp) => resolve(resp)).catch((error) => request.emit('error', error)); // eslint-disable-line no-use-before-define
@@ -69,15 +67,18 @@ function getNewURL(response, urlobj) {
 function makeBody(response, buffer, text) {
     let body = buffer;
     
-    const type = response.headers['content-type'];
-    if(type && type.includes('application/json')) {
-        try {
-            body = JSON.parse(text);
-        } catch(err) {
-            /* continue regardless of error */
-        }
-    } else if(type && type.includes('application/x-www-form-urlencoded')) {
-        body = querystring.parse(text);
+    const type = String(response.headers['content-type']).trim();
+    switch(type) {
+        case 'application/json':
+            try {
+                body = JSON.parse(text);
+            } catch(err) {
+                /* continue regardless of error */
+            }
+        break; // eslint-disable-line indent
+        case 'application/x-www-form-urlencoded':
+            body = querystring.parse(text);
+        break; // eslint-disable-line indent
     }
     
     return body;
