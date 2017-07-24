@@ -100,7 +100,7 @@ function applyOptionsToRequest(options) {
     return undefined;
 }
 
-function exportResObject(response, body, text) {
+function exportResObject(request, response, body, text) {
     return {
         request: request,
         body: makeBody(response, body, text),
@@ -155,7 +155,7 @@ function driverNekocurl(options, driverOptions) {
                     return;
                 }
                 
-                const res = exportResObject(response, body, text);
+                const res = exportResObject(request, response, body, text);
                 
                 if(response.statusCode >= 200 && response.statusCode < 300) {
                     return resolve(res);
