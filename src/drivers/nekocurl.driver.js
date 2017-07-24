@@ -23,25 +23,15 @@ function attachFile(options, form, name, data, filename) {
 
 function doRedirect(options, driverOptions, request, response, resolve) {
     if(driverOptions.followRedirects !== false && [ 301, 302, 303, 307, 308 ].includes(response.statusCode)) {
-        let method = options.method;
-        let data = options.data;
-        
-        switch(response.statusCode) {
-            case 301:
-            case 302:
-                if(options.method !== 'HEAD') {
-                    method = 'GET';
-                }
-                
-                data = null;
-            break; // eslint-disable-line indent
-            case 303:
-                method = 'GET';
-                data = null;
-            break; // eslint-disable-line indent
+        if([ 301, 302, 303 ].includes(response.statusCode)) {
+            if(response.statusCode === 303 || options.method !== 'HEAD') {
+                options.method = 'GET';
+            }
+            
+            options.data = null;
         }
         
-        driverNekocurl(Object.assign(options, { url: getNewURL(response, URL.parse(options.url)), method: method, data: data }), driverOptions).then((resp) => resolve(resp)).catch((error) => request.emit('error', error)); // eslint-disable-line no-use-before-define
+        driverNekocurl(Object.assign(options, { url: getNewURL(response, URL.parse(options.url)) }), driverOptions).then((resp) => resolve(resp)).catch((error) => request.emit('error', error)); // eslint-disable-line no-use-before-define
         return true;
     }
     
