@@ -353,7 +353,7 @@ class Nekocurl {
     }
 
     /**
-     * Sends the request and passes the request directly back.
+     * Sends the request and passes the request directly back (this does not mean you get the request stream, but whatever the driver directly returns).
      *
      * @returns   {Promise<object>}
      * @throws    {Error}

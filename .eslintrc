@@ -52,7 +52,7 @@
         "class-methods-use-this": "off",
         "complexity": [
             "error",
-            8
+            6
         ],
         "consistent-return": "off",
         "curly": "off",
