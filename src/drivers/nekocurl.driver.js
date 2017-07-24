@@ -125,6 +125,29 @@ function makeResObject(request, response, dataChunks) {
     };
 }
 
+function responseListener(request, response, options, driverOptions, resolve, reject) {
+    const dataChunks = [ ];
+    const stream = new PassThrough();
+    
+    doUnzip(response, stream, dataChunks);
+    
+    stream.once('end', () => {
+        if(doRedirect(options, driverOptions, request, response, resolve) === true) {
+            return undefined;
+        }
+        
+        const res = makeResObject(request, response, dataChunks);
+        if(res.status >= 200 && res.status < 300) {
+            return resolve(res);
+        }
+        
+        error.message = (res.status+' '+res.statusText).trim();
+        return reject(Object.assign(error, res));
+    });
+    
+    return undefined;
+}
+
 function driverNekocurl(options, driverOptions) {
     applyOptionsToRequest(options);
     
@@ -147,24 +170,7 @@ function driverNekocurl(options, driverOptions) {
         };
         
         request.once('abort', handleError).once('aborted', handleError).once('error', handleError).once('response', (response) => {
-            const dataChunks = [ ];
-            const stream = new PassThrough();
-            
-            doUnzip(response, stream, dataChunks);
-
-            stream.once('end', () => {
-                if(doRedirect(options, driverOptions, request, response, resolve) === true) {
-                    return undefined;
-                }
-                
-                const res = makeResObject(request, response, dataChunks);
-                if(res.status >= 200 && res.status < 300) {
-                    return resolve(res);
-                }
-                
-                error.message = (res.status+' '+res.statusText).trim();
-                return reject(Object.assign(error, res));
-            });
+            return responseListener(request, response, options, driverOptions, resolve, reject);
         });
         
         request.end((options.data ? (options.data.finalize ? options.data.finalize() : options.data) : undefined));
