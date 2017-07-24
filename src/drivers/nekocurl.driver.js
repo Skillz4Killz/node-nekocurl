@@ -42,12 +42,20 @@ function doRedirect(options, driverOptions, request, response, resolve) {
     return false;
 }
 
-function doUnzip(response) {
+function doShouldUnzip(response) {
     if(response.statusCode === 204 || response.statusCode === 304 || response.headers['content-length'] === '0') {
         return false;
     }
     
     return /^\s*(?:deflate|gzip)\s*$/.test(response.headers['content-encoding']);
+}
+
+function doUnzip(response, stream) {
+    if(doShouldUnzip(response) === true) {
+        response.pipe(zlib.createUnzip({ flush: zlib.Z_SYNC_FLUSH, finishFlush: zlib.Z_SYNC_FLUSH })).pipe(stream);
+    } else {
+        response.pipe(stream);
+    }
 }
 
 function getNewURL(response, urlobj) {
@@ -62,16 +70,14 @@ function makeBody(response, buffer, text) {
     let body = buffer;
     
     const type = response.headers['content-type'];
-    if(type) {
-        if(type.includes('application/json')) {
-            try {
-                body = JSON.parse(text);
-            } catch(err) {
-                /* continue regardless of error */
-            }
-        } else if(type.includes('application/x-www-form-urlencoded')) {
-            body = querystring.parse(text);
+    if(type && type.includes('application/json')) {
+        try {
+            body = JSON.parse(text);
+        } catch(err) {
+            /* continue regardless of error */
         }
+    } else if(type && type.includes('application/x-www-form-urlencoded')) {
+        body = querystring.parse(text);
     }
     
     return body;
@@ -94,23 +100,30 @@ function applyOptionsToRequest(options) {
     return undefined;
 }
 
+function exportResObject(response, body, text) {
+    return {
+        request: request,
+        body: makeBody(response, body, text),
+        text: text,
+        headers: response.headers,
+        status: response.statusCode,
+        statusText: (response.statusText || http.STATUS_CODES[response.statusCode])
+    };
+}
+
 function driverNekocurl(options, driverOptions) {
     if(!driverOptions || !(driverOptions instanceof Object)) {
         driverOptions = { };
     }
+    
+    applyOptionsToRequest(options);
+    
+    const url = URL.parse(options.url);
+    url.method = options.method;
+    url.headers = options.headers;
 
     const error = new Error(); // just to get an useful stack trace, maybe
     return new Promise((resolve, reject) => {
-        if(!driverOptions || !(driverOptions instanceof Object)) {
-            driverOptions = { };
-        }
-        
-        applyOptionsToRequest(options);
-        
-        const url = URL.parse(options.url);
-        url.method = options.method;
-        url.headers = options.headers;
-        
         const request = (url.protocol.includes('https') === true ? https : http).request(url);
         
         const handleError = (err) => {
@@ -125,37 +138,25 @@ function driverNekocurl(options, driverOptions) {
         
         request.once('abort', handleError).once('aborted', handleError).once('error', handleError).once('response', (response) => {
             const stream = new PassThrough();
+            doUnzip(response, stream);
             
-            if(doUnzip(response)) {
-                response.pipe(zlib.createUnzip({ flush: zlib.Z_SYNC_FLUSH, finishFlush: zlib.Z_SYNC_FLUSH })).pipe(stream);
-            } else {
-                response.pipe(stream);
-            }
-            
-            const body = [ ];
+            const dataChunks = [ ];
             
             stream.on('data', (chunk) => {
-                body.push(chunk);
+                dataChunks.push(chunk);
             });
 
             stream.once('end', () => {
-                const respbody = Buffer.concat(body);
-                const resptext = respbody.toString();
+                const body = Buffer.concat(dataChunks);
+                const text = body.toString();
                 
                 const redirect = doRedirect(options, driverOptions, request, response, resolve);
                 if(redirect === true) {
                     return;
                 }
-
-                const res = {
-                    request: request,
-                    body: makeBody(response, respbody, resptext),
-                    text: resptext,
-                    headers: response.headers,
-                    status: response.statusCode,
-                    statusText: (response.statusText || http.STATUS_CODES[response.statusCode])
-                };
-
+                
+                const res = exportResObject(response, body, text);
+                
                 if(response.statusCode >= 200 && response.statusCode < 300) {
                     return resolve(res);
                 }
