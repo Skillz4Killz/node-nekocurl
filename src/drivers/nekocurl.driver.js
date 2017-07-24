@@ -104,17 +104,6 @@ function applyOptionsToRequest(options) {
     return undefined;
 }
 
-function exportResObject(request, response, body, text) {
-    return {
-        request: request,
-        body: makeBody(response, body, text),
-        text: text,
-        headers: response.headers,
-        status: response.statusCode,
-        statusText: (response.statusText || http.STATUS_CODES[response.statusCode])
-    };
-}
-
 function driverNekocurl(options, driverOptions) {
     applyOptionsToRequest(options);
     
@@ -155,7 +144,14 @@ function driverNekocurl(options, driverOptions) {
                     return;
                 }
                 
-                const res = exportResObject(request, response, body, text);
+                const res = {
+                    request: request,
+                    body: makeBody(response, body, text),
+                    text: text,
+                    headers: response.headers,
+                    status: response.statusCode,
+                    statusText: (response.statusText || http.STATUS_CODES[response.statusCode])
+                };
                 
                 if(response.statusCode >= 200 && response.statusCode < 300) {
                     return resolve(res);
