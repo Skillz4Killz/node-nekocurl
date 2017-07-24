@@ -31,8 +31,7 @@ function doRedirect(options, driverOptions, request, response, resolve) {
             options.data = null;
         }
         
-        driverNekocurl(Object.assign(options, { url: getNewURL(response, URL.parse(options.url)) }), driverOptions).then((resp) => resolve(resp)).catch((error) => request.emit('error', error)); // eslint-disable-line no-use-before-define
-        return true;
+        return driverNekocurl(Object.assign(options, { url: getNewURL(response, URL.parse(options.url)) }), driverOptions).then((resp) => resolve(resp)).catch((error) => request.emit('error', error)); // eslint-disable-line no-use-before-define
     }
     
     return false;
@@ -46,7 +45,9 @@ function doShouldUnzip(response) {
     return /^\s*(?:deflate|gzip)\s*$/.test(response.headers['content-encoding']);
 }
 
-function doUnzip(response, stream, dataChunks) {
+function doUnzip(response, dataChunks) {
+    const stream = new PassThrough();
+    
     if(doShouldUnzip(response) === true) {
         response.pipe(zlib.createUnzip({ flush: zlib.Z_SYNC_FLUSH, finishFlush: zlib.Z_SYNC_FLUSH })).pipe(stream);
     } else {
@@ -57,7 +58,7 @@ function doUnzip(response, stream, dataChunks) {
         dataChunks.push(chunk);
     });
     
-    return undefined;
+    return stream;
 }
 
 function getNewURL(response, urlobj) {
@@ -105,6 +106,24 @@ function applyOptionsToRequest(options) {
     return undefined;
 }
 
+function driverFormEnd(request, response, body, text, error, resolve, reject) {
+    const res = {
+        request: request,
+        body: makeBody(response, body, text),
+        text: text,
+        headers: response.headers,
+        status: response.statusCode,
+        statusText: (response.statusText || http.STATUS_CODES[response.statusCode])
+    };
+    
+    if(res.status >= 200 && res.status < 300) {
+        return resolve(res);
+    }
+    
+    error.message = (res.status+' '+res.statusText).trim();
+    return reject(Object.assign(error, res));
+}
+
 function driverNekocurl(options, driverOptions) {
     applyOptionsToRequest(options);
     
@@ -128,33 +147,14 @@ function driverNekocurl(options, driverOptions) {
         
         request.once('abort', handleError).once('aborted', handleError).once('error', handleError).once('response', (response) => {
             const dataChunks = [ ];
-            const stream = new PassThrough();
             
-            doUnzip(response, stream, dataChunks);
-            
-            stream.once('end', () => {
-                if(doRedirect(options, driverOptions, request, response, resolve) === true) {
+            doUnzip(response, dataChunks).once('end', () => {
+                if(doRedirect(options, driverOptions, request, response, resolve) !== false) {
                     return undefined;
                 }
                 
                 const body = Buffer.concat(dataChunks);
-                const text = body.toString();
-                
-                const res = {
-                    request: request,
-                    body: makeBody(response, body, text),
-                    text: text,
-                    headers: response.headers,
-                    status: response.statusCode,
-                    statusText: (response.statusText || http.STATUS_CODES[response.statusCode])
-                };
-                
-                if(res.status >= 200 && res.status < 300) {
-                    return resolve(res);
-                }
-                
-                error.message = (res.status+' '+res.statusText).trim();
-                return reject(Object.assign(error, res));
+                return driverFormEnd(request, response, body, body.toString(), error, resolve, reject);
             });
         });
         
