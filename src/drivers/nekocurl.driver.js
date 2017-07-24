@@ -18,6 +18,7 @@ const FormData = require(path.join(__dirname, '..', 'formdata.js'));
 function attachFile(options, form, name, data, filename) {
     form.append(name, data, filename);
     options.data = form;
+    return undefined;
 }
 
 function doRedirect(options, driverOptions, request, response, resolve) {
@@ -54,6 +55,8 @@ function doUnzip(response, stream) {
     } else {
         response.pipe(stream);
     }
+    
+    return undefined;
 }
 
 function getNewURL(response, urlobj) {
@@ -104,17 +107,6 @@ function applyOptionsToRequest(options) {
     return undefined;
 }
 
-function exportResObject(request, response, body, text) {
-    return {
-        request: request,
-        body: makeBody(response, body, text),
-        text: text,
-        headers: response.headers,
-        status: response.statusCode,
-        statusText: (response.statusText || http.STATUS_CODES[response.statusCode])
-    };
-}
-
 function driverNekocurl(options, driverOptions) {
     applyOptionsToRequest(options);
     
@@ -133,7 +125,7 @@ function driverNekocurl(options, driverOptions) {
             }
             
             err.request = request;
-            reject(err);
+            return reject(err);
         };
         
         request.once('abort', handleError).once('aborted', handleError).once('error', handleError).once('response', (response) => {
@@ -152,10 +144,17 @@ function driverNekocurl(options, driverOptions) {
                 
                 const redirect = doRedirect(options, driverOptions, request, response, resolve);
                 if(redirect === true) {
-                    return;
+                    return undefined;
                 }
                 
-                const res = exportResObject(request, response, body, text);
+                const res = {
+                    request: request,
+                    body: makeBody(response, body, text),
+                    text: text,
+                    headers: response.headers,
+                    status: response.statusCode,
+                    statusText: (response.statusText || http.STATUS_CODES[response.statusCode])
+                };
                 
                 if(response.statusCode >= 200 && response.statusCode < 300) {
                     return resolve(res);
