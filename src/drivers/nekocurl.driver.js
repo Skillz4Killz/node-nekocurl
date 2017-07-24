@@ -113,10 +113,6 @@ function exportResObject(request, response, body, text) {
 }
 
 function driverNekocurl(options, driverOptions) {
-    if(!driverOptions || !(driverOptions instanceof Object)) {
-        driverOptions = { };
-    }
-    
     applyOptionsToRequest(options);
     
     const url = URL.parse(options.url);

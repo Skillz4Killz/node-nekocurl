@@ -371,6 +371,10 @@ class Nekocurl {
         if(options.json === true && options.headers['content-type'] !== 'application/json') {
             this.setHeader('Content-Type', 'application/json');
         }
+        
+        if(!this._driverOptions || !(this._driverOptions instanceof Object)) {
+            this._driverOptions = { };
+        }
 
         return this.getDriver().driver(options, this._driverOptions, this);
     }

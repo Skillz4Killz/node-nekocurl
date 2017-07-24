@@ -26,16 +26,7 @@ function makeFile(obj, file) {
     return undefined;
 }
 
-function makeFilesObject(files) {
-    if(files.length === 0) {
-        return undefined;
-    }
-
-    const obj = { form: { }, formData: { } };
-    for(let i = 0; i < files.length; i++) {
-        makeFile(obj, files[i]);
-    }
-    
+function makeFilesAssert(obj) {
     if(Object.keys(obj.form).length === 0) {
         obj.form = undefined;
     }
@@ -47,11 +38,29 @@ function makeFilesObject(files) {
     return obj;
 }
 
-function driverRequest(options, driverOptions) {
-    if(!driverOptions || !(driverOptions instanceof Object)) {
-        driverOptions = { };
+function makeFilesObject(files) {
+    if(files.length === 0) {
+        return undefined;
+    }
+
+    const obj = { form: { }, formData: { } };
+    for(let i = 0; i < files.length; i++) {
+        makeFile(obj, files[i]);
     }
     
+    return makeFilesAssert(obj);
+}
+
+function makeRejectError(error, res) {
+    error.message = res.status+' '+res.statusMessage;
+    error.status = res.status;
+    error.statusText = res.statusMessage;
+    
+    error.request = res;
+    return error;
+}
+
+function driverRequest(options, driverOptions) {
     const error = new Error();
     
     return new Promise((resolve, reject) => {
@@ -62,12 +71,7 @@ function driverRequest(options, driverOptions) {
             
             res.status = res.statusCode;
             if(res.status >= 400) {
-                error.message = res.status+' '+res.statusMessage;
-                error.status = res.status;
-                error.statusText = res.statusMessage;
-                
-                error.request = res;
-                return reject(error);
+                return reject(makeRejectError(error, res));
             }
             
             return resolve(res);
