@@ -67,11 +67,8 @@ function getNewURL(response, urlobj) {
 function makeBody(response, buffer, text) {
     let body = buffer;
     
-    const type = String(response.headers['content-type']).trim();
+    const type = String(response.headers['content-type']).split(';')[0].trim();
     switch(type) {
-        default:
-            /* this comment is my body */
-        break; // eslint-disable-line indent
         case 'application/json':
             try {
                 body = JSON.parse(text);
@@ -81,6 +78,9 @@ function makeBody(response, buffer, text) {
         break; // eslint-disable-line indent
         case 'application/x-www-form-urlencoded':
             body = querystring.parse(text);
+        break; // eslint-disable-line indent
+        default:
+            /* this comment is my body */
         break; // eslint-disable-line indent
     }
     
