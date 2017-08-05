@@ -23,7 +23,20 @@ const Nekocurl = require('nekocurl');
 )).send().then((json) => {
     console.log(json);
 });
+
+// or
+Nekocurl.get('https://curl.neko.run/test.json', { json: true }).then((json) => {
+    console.log(json);
+});
 ```
+
+Static methods for the following methods are available:
+-GET
+-HEAD
+-POST
+-PUT
+-PATCH
+-DELETE
 
 # Documentation
 https://charlottedunois.github.io/node-nekocurl/

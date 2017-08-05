@@ -21,7 +21,7 @@ function attachFile(options, form, name, data, filename) {
     return undefined;
 }
 
-function doRedirect({ options, driverOptions, request, response, resolve }) {
+function doRedirect(options, driverOptions, request, response, resolve) {
     if(driverOptions.followRedirects !== false && [ 301, 302, 303, 307, 308 ].includes(response.statusCode)) {
         if([ 301, 302, 303 ].includes(response.statusCode)) {
             if(response.statusCode === 303 || options.method !== 'HEAD') {
@@ -106,7 +106,7 @@ function applyOptionsToRequest(options) {
     return undefined;
 }
 
-function driverFormEnd({ request, response, body, text, error, resolve, reject }) {
+function driverFormEnd(request, response, body, text, error, resolve, reject) {
     const res = {
         request: request,
         body: makeBody(response, body, text),
@@ -149,12 +149,12 @@ function driverNekocurl(options, driverOptions) {
             const dataChunks = [ ];
             
             doUnzip(response, dataChunks).once('end', () => {
-                if(doRedirect({ options, driverOptions, request, response, resolve }) !== false) {
+                if(doRedirect(options, driverOptions, request, response, resolve) !== false) {
                     return undefined;
                 }
                 
                 const body = Buffer.concat(dataChunks);
-                return driverFormEnd({ request, response, body, text: body.toString(), error, resolve, reject }); // eslint-disable-line object-shorthand
+                return driverFormEnd(request, response, body, body.toString(), error, resolve, reject);
             });
         });
         

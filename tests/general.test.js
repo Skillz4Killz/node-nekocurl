@@ -149,12 +149,18 @@ describe('Nekocurl general testing', () => {
     });
     
     describe('Passing no url to Nekocurl and trying to send', () => {
-        it('should throw', () => {
-            return (new Nekocurl()).send().catch((error) => {
-                assert.throws(() => {
-                    throw error;
-                }, Error);
-            });
+        it('should throw', async () => {
+            const errmsg = 'Promise resolved normally';
+            try {
+                await (new Nekocurl()).send();
+                throw new Error(errmsg);
+            } catch(e) {
+                if(e.message === errmsg) {
+                    throw e;
+                }
+            }
+            
+            return undefined;
         });
     });
 });

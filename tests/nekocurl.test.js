@@ -26,7 +26,7 @@ describe('Nekocurl testing', function () {
     describe('Simple GET with params', () => {
         it('should return true if returned args are equal to passed GET params', () => {
             const params = { But: 'will it blend?', Nekocurl: 'is amazing' };
-            return (new Nekocurl('http://localhost:5001/get?'+querystring.stringify(params), { json: true })).setDriver('nekocurl').send().then((json) => {
+            return Nekocurl.get('http://localhost:5001/get?'+querystring.stringify(params), { driver: 'nekocurl', json: true }).then((json) => {
                 assert.deepStrictEqual(json.args, params);
                 return undefined;
             });
