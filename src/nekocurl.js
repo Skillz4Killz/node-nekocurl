@@ -432,7 +432,7 @@ Nekocurl.evaluateDefaultDriver();
 
 const methods = [ 'GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE' ];
 for(const method of methods) {
-    Nekocurl[method] = (url, options = { }, resolveWithFullResponse = false) => {
+    Nekocurl[method.toLowerCase()] = (url, options = { }, resolveWithFullResponse = false) => {
         return (new Nekocurl(url, Object.assign(options, { method: method }))).send(resolveWithFullResponse);
     };
 }
