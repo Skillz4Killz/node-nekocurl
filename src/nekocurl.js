@@ -326,8 +326,7 @@ class Nekocurl {
      */
     async send(resolveWithFullResponse) { // eslint-disable-line complexity
         const options = this._options;
-        const request = this.sendPassthrough();
-        const response = await request;
+        const response = await this.sendPassthrough();
         
         if(options.autoString === true && response.body instanceof Buffer) {
             response.body = response.body.toString();
