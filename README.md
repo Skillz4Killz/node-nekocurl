@@ -30,13 +30,7 @@ Nekocurl.get('https://curl.neko.run/test.json', { json: true }).then((json) => {
 });
 ```
 
-Static methods for the following methods are available:
--GET
--HEAD
--POST
--PUT
--PATCH
--DELETE
+Static methods (lowercase naming) are available for the following methods: GET, HEAD, POST, PUT, PATCH and DELETE.
 
 # Documentation
 https://charlottedunois.github.io/node-nekocurl/
