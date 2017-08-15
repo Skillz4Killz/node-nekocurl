@@ -1,12 +1,12 @@
 {
   "name": "nekocurl",
-  "version": "1.3.2",
+  "version": "1.3.3",
   "description": "A HTTP client class that uses plug-in drivers to do HTTP requests.",
   "repository": "github:CharlotteDunois/node-nekocurl",
   "author": "Charlotte Dunois",
   "license": "MIT",
   "dependencies": {
-      "file-type": "^5.2.0",
+      "file-type": "^6.1.0",
       "mime-types": "^2.1.15"
   },
   "dependencies-dev": {
